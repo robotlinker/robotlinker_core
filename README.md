@@ -1,4 +1,4 @@
 # robotlinker_core
-
-[![travis](https://travis-ci.org/RevolutionAnalytics/miniCRAN.svg?branch=master)](https://travis-ci.org/RevolutionAnalytics/miniCRAN)
+travis[![Build
+Status](https://travis-ci.org/robotlinker/robotlinker_core.svg?branch=master)](https://travis-ci.org/robotlinker/robotlinker_core)
 =======
