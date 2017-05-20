@@ -1,0 +1,33 @@
+<launch>
+
+<!-- Load the robotlinker gui -->
+<node name="robotlinker_gui_node" pkg="robotlinker_gui" type="robotlinker_gui">
+</node>
+	
+<!--setup the communication node with arduino -->
+<node name="rasbpi_node" pkg="rasbpi3" type="rasbpi_node">
+</node>
+
+<!--Connect with spacenav 3D joystick -->
+<!--node name="joystick_node" pkg="spacenav_node" type="spacenav_node">
+</node-->
+
+<!--Connect with the robotiq ft300 sensor -->
+<!--node name="ft300_sensor_node" pkg="robotiq_force_torque_sensor" type="rq_sensor">
+</node-->
+
+<!--Connect with the arduino to get sensor data -->
+<!--node pkg="rosserial_python" name="arduino_comm_node" type="serial_node.py" output="screen">
+ <param name="~port" value="/dev/ttyACM0"/>
+</node-->
+
+<!--Connect with the UR5 robot controller -->
+<include file="$(find ur_modern_driver)/launch/ur5_bringup.launch">
+  <arg name="robot_ip" value="localhost"/>
+</include>
+
+<include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" >
+  <arg name="port" value="9090"/>
+</include>
+
+</launch>
