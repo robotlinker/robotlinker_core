@@ -6,7 +6,7 @@ compiler:
   - gcc
 env:
   global:
-    - CATKIN_WS=~/robotlinker_ws
+    - CATKIN_WS=~/robotlinker_core
     - CATKIN_WS_SRC=${CATKIN_WS}/src
     - CI_ROS_DISTRO="indigo"
 #  matrix:
