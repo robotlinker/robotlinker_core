@@ -11,9 +11,9 @@ Copyright: Aitreat Pte. Ltd.
 #include <iostream>
 #include <geometry_msgs/Vector3.h>
 #include "std_msgs/Int16.h"
-#include "../include/rt_msgs/robotlinker_protocol.h"
-#include "../include/rt_msgs/motor_control.h"
-#include "../include/ur_msgs/RobotStateRTMsg.h"
+#include "rt_msgs/robotlinker_protocol.h"
+#include "rt_msgs/motor_control.h"
+#include "ur_msgs/RobotStateRTMsg.h"
 
 int tactile_data = 0;
 int length_data = 0;

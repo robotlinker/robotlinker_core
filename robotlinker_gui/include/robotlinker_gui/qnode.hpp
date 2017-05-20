@@ -21,10 +21,10 @@
 #include <QImage>
 #include <image_transport/image_transport.h>
 #include <QStringListModel>
-#include "../include/rt_msgs/robotlinker_protocol.h"
-#include "../include/rt_msgs/motor_control.h"
-#include "../include/ur_msgs/RobotStateRTMsg.h"
-#include "../include/rt_msgs/ft_sensor.h"
+#include "rt_msgs/robotlinker_protocol.h"
+#include "rt_msgs/motor_control.h"
+#include "ur_msgs/RobotStateRTMsg.h"
+#include "rt_msgs/ft_sensor.h"
 #include <geometry_msgs/Vector3.h>
 #include <std_msgs/String.h>
 #include <sensor_msgs/JointState.h>
