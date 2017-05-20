@@ -7,14 +7,15 @@ from std_msgs.msg import String
 from json_message_converter import *
 import rospy
 from sensor_msgs.msg import JointState
+import ast
 
 ROS_TOPIC_NAME = 'joint_states'
 AWS_CALLBACK_TOPIC = 'send_from_aws_iot'
-ROS_ROBOT_TOPIC = 'joint_command'
+ROS_ROBOT_TOPIC = '/ur_driver/URScript'
 
 class AWS_ROS_Comm:
     def __init__(self):
-        self.robot_control_pub = rospy.Publisher(ROS_ROBOT_TOPIC, JointState)
+        self.robot_control_pub = rospy.Publisher(ROS_ROBOT_TOPIC, String)
         useWebsocket = False
         host = ""
         rootCAPath = ""
@@ -95,11 +96,24 @@ class AWS_ROS_Comm:
     	print(message.payload)
     	print("from topic: ")
     	print(message.topic)
-        ros_msg = self.json2ros('sensor_msgs/JointState', message.payload)
-        print ros_msg 
-        self.robot_control_pub.publish(ros_msg)
+        ## convert aws msg to a string command
+        
+        #command_str = self.decode_json(message.payload)
+        aws_fake_msg = '{"x":1, "y":0, "z":0}'
+        command_str = self.decode_json(aws_fake_msg)
+        self.robot_control_pub.publish(command_str)
 
     	print("--------------\n\n")
+
+    def decode_json(self, msg):
+        ## parse aws string
+        dict_msg = ast.literal_eval(msg)
+        linear_direction = [dict_msg['x'], dict_msg['y'], dict_msg['z'], 0, 0, 0]
+        linear_speed = [ 0.04 * l for l in linear_direction]
+
+        command = 'speedl(' + str(linear_speed) + ', 0.1)'
+
+        return command
 
     def run(self):
         while True and not rospy.is_shutdown():
