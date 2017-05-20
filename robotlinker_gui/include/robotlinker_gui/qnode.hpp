@@ -19,9 +19,9 @@
 #include <string>
 #include <QThread>
 #include <QImage>
-#include <image_transport/image_transport.h>
-#include <QStringListModel>
 #include "rt_msgs/robotlinker_protocol.h"
+#include "image_transport/image_transport.h"
+#include <QStringListModel>
 #include "rt_msgs/motor_control.h"
 #include "ur_msgs/RobotStateRTMsg.h"
 #include "rt_msgs/ft_sensor.h"
