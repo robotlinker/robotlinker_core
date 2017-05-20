@@ -121,7 +121,8 @@ class AWS_ROS_Comm:
             ros_msg = rospy.wait_for_message(ROS_TOPIC_NAME, JointState)
             json_msg = self.ros2json(ros_msg)
             #print json_msg
-            self.myAWSIoTMQTTClient.publish('aws_iot_test', json_msg, 1)
+            #self.myAWSIoTMQTTClient.publish('aws_iot_test', json_msg, 1)
+            self.myAWSIoTMQTTClient.publish('hello', json_msg, 1)
             time.sleep(1)
 
     def ros2json(self, msg):

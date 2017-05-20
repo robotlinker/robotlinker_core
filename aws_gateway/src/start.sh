@@ -19,4 +19,6 @@ set -e
 # run pub/sub sample app using certificates downloaded in package
 printf "\nRuning pub/sub sample application...\n"
 #python basicPubSub.py -e a2futgnzves0uy.iot.us-west-2.amazonaws.com -r root-CA.crt -c ljk_device.cert.pem -k ljk_device.private.key
-python AWS_ROS_pubsub.py -e a2futgnzves0uy.iot.us-west-2.amazonaws.com -r ./keys/root-CA.crt -c ./keys/ljk_device.cert.pem -k ./keys/ljk_device.private.key
+#python AWS_ROS_pubsub.py -e a2futgnzves0uy.iot.us-west-2.amazonaws.com -r ./keys/root-CA.crt -c ./keys/ljk_device.cert.pem -k ./keys/ljk_device.private.key
+python AWS_ROS_pubsub.py -e a1zzeyxtagz2r4.iot.ap-southeast-1.amazonaws.com -r ./keys/root-CA.crt -c ./keys/8e17a6779d-certificate.pem.crt -k ./keys/8e17a6779d-private.pem.key
+
