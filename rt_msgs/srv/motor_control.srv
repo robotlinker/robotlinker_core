@@ -1,5 +1,0 @@
-#commands to control the stepper motor speed and direction
-int16 motor_speed
-int16 motion_direction
----
-int16 motor_status
