@@ -21,7 +21,6 @@ parts:
   demo-project:
     plugin: catkin
     source: .
-    rosdistro: indigo
     catkin-packages:
       - talker
       - listener
