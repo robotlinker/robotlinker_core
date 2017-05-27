@@ -6,6 +6,6 @@
    <arg name="robot_ip" value="192.168.1.108"/>
  </include>
 
- <!--node name="aws_gateway_node" pkg="aws_gateway" type="AWS_ROS_pubsub.py" respawn="false" output="screen" args="$(arg aws_config)" /-->
+ <!--node name="aws_gateway_node" pkg="aws_gateway" type="AWS_ROS_pubsub" respawn="false" output="screen" args="$(arg aws_config)" /-->
 
 </launch>

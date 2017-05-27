@@ -26,7 +26,7 @@ catkin_package(CATKIN_DEPENDS message_runtime std_msgs)
 add_rostest(test/test_all.test)
 
 catkin_install_python(PROGRAMS
-                      src/AWS_ROS_pubsub.py
+                      src/AWS_ROS_pubsub
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 #install(PROGRAMS
