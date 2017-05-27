@@ -1,0 +1,30 @@
+name: robotlinker-demo
+version: 1.0
+summary: RobotLinker-Core on Edge Gateway Demo Package
+description: Contains talker/listener ROS packages, AWS, UR10 Driver and ROS-Bridge packages.
+grade: stable
+confinement: strict
+
+apps:
+  launch-project:
+    command: roslaunch listener talk_and_listen.launch
+    plugs: [network-bind]
+
+parts:
+  ros-project:
+    plugin: catkin
+    source: .
+    catkin-packages:
+      - talker
+      - listener
+    include-roscore: true
+parts:
+   demo-project:
+      plugin: catkin
+      source: .
+      catkin-packages:
+       - aws_gateway
+       - rosbridge_suite
+       - ur_modern_driver
+       _ ur_msgs
+     include-roscore: true

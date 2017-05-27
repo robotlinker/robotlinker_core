@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import sys
 import logging
