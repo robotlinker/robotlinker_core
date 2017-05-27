@@ -22,7 +22,7 @@
 #ifdef ROS_BUILD
 #include <ros/ros.h>
 #endif
-#include <string>
+#include <string.h>
 
 void print_debug(std::string inp);
 void print_info(std::string inp);

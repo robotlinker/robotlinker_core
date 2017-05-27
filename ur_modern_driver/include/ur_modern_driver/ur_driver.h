@@ -26,7 +26,7 @@
 #include "do_output.h"
 #include <vector>
 #include <math.h>
-#include <string>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

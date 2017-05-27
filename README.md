@@ -21,7 +21,7 @@ Status](https://travis-ci.org/robotlinker/robotlinker_core.svg?branch=master)](h
 * run `roslaunch ur_modern_driver ur10_bringup.launch robot_ip:=localhost` 
 
 ### AWS-IOT python lib
-* `roscd aws_gateway/src`
+* `roscd aws_gateway/scripts`
 * `bash aws_iot_python_install.sh`
 * install other python libs if necessary
     
