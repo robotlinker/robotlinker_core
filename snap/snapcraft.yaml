@@ -8,10 +8,7 @@ confinement: strict
 apps:
   launch-ur_driver:
     command: roslaunch ur_modern_driver robotlinker_demo.launch
-    plugs: [network-bind]
-apps:
-   launch-aws:
-    command: rosrun aws_gateway AWS_ROS_pubsub.py -e a1zzeyxtagz2r4.iot.ap-southeast-1.amazonaws.com -r ~/robotlinker_ws/src/aws_gateway/src/keys/root-CA.crt -c ~/robotlinker_ws/src/aws_gateway/src/keys/8e17a6779d-certificate.pem.crt -k ~/robotlinker_ws/src/aws_gateway/src/keys/8e17a6779d-private.pem.key
+    command: rosrun aws_gateway AWS_ROS_pubsub.py -e a1zzeyxtagz2r4.iot.ap-southeast-1.amazonaws.com -r ~/robotlinker_ws/src/aws_gateway/src/keys/root-CA.crt -c ~/robotlinker_ws/src/aws_gateway/src/keys/8e17a6779d-certificate.pem.crt -k ~/robotlinker_ws/src/aws_gateway/src/keys/8e17a6779d-private.pem
     plugs: [network-bind]
 
 parts:

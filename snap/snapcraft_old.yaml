@@ -18,13 +18,3 @@ parts:
       - talker
       - listener
     include-roscore: true
-parts:
-   demo-project:
-      plugin: catkin
-      source: .
-      catkin-packages:
-       - aws_gateway
-       - rosbridge_suite
-       - ur_modern_driver
-       _ ur_msgs
-     include-roscore: true
