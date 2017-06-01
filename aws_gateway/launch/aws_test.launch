@@ -1,0 +1,11 @@
+<launch>
+
+    
+    <param name="aws_service_location" type="str" value="a1zzeyxtagz2r4.iot.ap-southeast-1.amazonaws.com"  />
+    <param name="aws_service_root_CA" type="str" value="$(find aws_gateway)/src/keys/root-CA.crt" />
+    <param name="aws_service_cert" type="str" value="$(find aws_gateway)/src/keys/8e17a6779d-certificate.pem.crt" />
+    <param name="aws_service_private_key" type="str" value="$(find aws_gateway)/src/keys/8e17a6779d-private.pem.key" />
+    <node name="aws_test" pkg="aws_gateway" type="AWS_ROS_pubsub"
+    output="screen" />
+
+</launch>

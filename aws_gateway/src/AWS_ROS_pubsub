@@ -22,44 +22,49 @@ class AWS_ROS_Comm:
         rootCAPath = ""
         certificatePath = ""
         privateKeyPath = ""
+        host = rospy.get_param("aws_service_location")
+        rootCAPath = rospy.get_param("aws_service_root_CA")
+        certificatePath = rospy.get_param("aws_service_cert")
+        privateKeyPath = rospy.get_param("aws_service_private_key")
+        useWebsocket = False
 
-        try:
-        	opts, args = getopt.getopt(sys.argv[1:], "hwe:k:c:r:", ["help", "endpoint=", "key=","cert=","rootCA=", "websocket"])
-        	if len(opts) == 0:
-        		raise getopt.GetoptError("No input parameters!")
-        	for opt, arg in opts:
-        		if opt in ("-h", "--help"):
-        			print(helpInfo)
-        			exit(0)
-        		if opt in ("-e", "--endpoint"):
-        			host = arg
-        		if opt in ("-r", "--rootCA"):
-        			rootCAPath = arg
-        		if opt in ("-c", "--cert"):
-        			certificatePath = arg
-        		if opt in ("-k", "--key"):
-        			privateKeyPath = arg
-        		if opt in ("-w", "--websocket"):
-        			useWebsocket = True
-        except getopt.GetoptError:
-        	print(usageInfo)
-        	exit(1)
-        missingConfiguration = False
-        if not host:
-        	print("Missing '-e' or '--endpoint'")
-        	missingConfiguration = True
-        if not rootCAPath:
-        	print("Missing '-r' or '--rootCA'")
-        	missingConfiguration = True
-        if not useWebsocket:
-        	if not certificatePath:
-        		print("Missing '-c' or '--cert'")
-        		missingConfiguration = True
-        	if not privateKeyPath:
-        		print("Missing '-k' or '--key'")
-        		missingConfiguration = True
-        if missingConfiguration:
-        	exit(2)
+
+#        try:
+#        	opts, args = getopt.getopt(sys.argv[1:], "hwe:k:c:r:", ["help", "endpoint=", "key=","cert=","rootCA=", "websocket"])
+#        	if len(opts) == 0:
+#        		raise getopt.GetoptError("No input parameters!")
+#        	for opt, arg in opts:
+#        		if opt in ("-h", "--help"):
+#        			print(helpInfo)
+#        			exit(0)
+#        		if opt in ("-e", "--endpoint"):
+#        			host = arg
+#        		if opt in ("-r", "--rootCA"):
+#        			rootCAPath = arg
+#        		if opt in ("-c", "--cert"):
+#        			certificatePath = arg
+#        		if opt in ("-k", "--key"):
+#        			privateKeyPath = arg
+#        		if opt in ("-w", "--websocket"):
+#        			useWebsocket = True
+#        except getopt.GetoptError:
+#        	exit(1)
+#        missingConfiguration = False
+#        if not host:
+#        	print("Missing '-e' or '--endpoint'")
+#        	missingConfiguration = True
+#        if not rootCAPath:
+#        	print("Missing '-r' or '--rootCA'")
+#        	missingConfiguration = True
+#        if not useWebsocket:
+#        	if not certificatePath:
+#        		print("Missing '-c' or '--cert'")
+#        		missingConfiguration = True
+#        	if not privateKeyPath:
+#        		print("Missing '-k' or '--key'")
+#        		missingConfiguration = True
+#        if missingConfiguration:
+#        	exit(2)
         
         # Configure logging
         logger = logging.getLogger("AWSIoTPythonSDK.core")
