@@ -30,7 +30,7 @@ Status](https://travis-ci.org/robotlinker/robotlinker_core.svg?branch=master)](h
 * Gateway uploads robot's state to cloud
 * Cloud processes the data and return a command
 * Gateway receives command and send to robot to execute
-* run 'roslaunch aws_gateway aws_test.launch` (instead of run `bash start.sh`)
+* run `roslaunch aws_gateway aws_test.launch` (instead of run `bash start.sh`)
 * change `aws_test.launch` if you have different certs, keys or aws accts
 * it has been tested under Ubuntu 14.04 with ROS Indigo
 
