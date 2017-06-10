@@ -11,7 +11,8 @@ from sensor_msgs.msg import JointState
 import ast
 
 ROS_TOPIC_NAME = 'joint_states'
-AWS_CALLBACK_TOPIC = 'send_from_aws_iot'
+AWS_SEND_TOPIC = 'hello'
+AWS_CALLBACK_TOPIC = 'hello2'
 ROS_ROBOT_TOPIC = '/ur_driver/URScript'
 
 class AWS_ROS_Comm:
@@ -128,7 +129,7 @@ class AWS_ROS_Comm:
             json_msg = self.ros2json(ros_msg)
             #print json_msg
             #self.myAWSIoTMQTTClient.publish('aws_iot_test', json_msg, 1)
-            self.myAWSIoTMQTTClient.publish('hello', json_msg, 1)
+            self.myAWSIoTMQTTClient.publish(AWS_SEND_TOPIC, json_msg, 1)
             time.sleep(1)
 
     def ros2json(self, msg):

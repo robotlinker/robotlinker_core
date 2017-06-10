@@ -6,7 +6,9 @@ Status](https://travis-ci.org/robotlinker/robotlinker_core.svg?branch=master)](h
 ## Prerequisite
 ### UR Simulator
 * Download [UR Simulator](https://www.universal-robots.com/download/)
-* unzip and install `bash install.sh`
+* Unzip 
+* In `install.sh`, replace `openjdk-6-jre` with  `openjdk-8-jre`
+* Install `bash install.sh`
 * change the following to be executable `sudo chmod +x filename.sh`
     * start-ursim.sh
     * starturcontrol.sh
@@ -21,8 +23,9 @@ Status](https://travis-ci.org/robotlinker/robotlinker_core.svg?branch=master)](h
 * run `roslaunch ur_modern_driver ur10_bringup.launch robot_ip:=localhost` 
 
 ### AWS-IOT python lib
-* `roscd aws_gateway/scripts`
-* `bash aws_iot_python_install.sh`
+* `git clone https://github.com/aws/aws-iot-device-sdk-python.git`
+* `cd aws-iot-device-sdk-python`
+* `sudo python setup.py install`
 * install other python libs if necessary
     
 ## aws_gateway
