@@ -52,6 +52,8 @@
   <build_depend>ur_msgs</build_depend>
   <build_depend>tf</build_depend>
   <build_depend>realtime_tools</build_depend>
+  <build_depend>robot_state_publisher</build_depend>
+  <run_depend>robot_state_publisher</run_depend>
   <run_depend>hardware_interface</run_depend>
   <run_depend>controller_manager</run_depend>
   <run_depend>ros_controllers</run_depend>

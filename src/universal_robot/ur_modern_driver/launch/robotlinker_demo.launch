@@ -2,8 +2,10 @@
 
  <!--arg name="aws_config"  default="-e a1zzeyxtagz2r4.iot.ap-southeast-1.amazonaws.com -r ~/robotlinker_ws/src/aws_gateway/src/keys/root-CA.crt -c ~/robotlinker_ws/src/aws_gateway/src/keys/8e17a6779d-certificate.pem.crt -k ~/robotlinker_ws/src/aws_gateway/src/keys/8e17a6779d-private.pem.key"/-->
 
+<!-- 192.168.1.108 -->
+
  <include file="$(find ur_modern_driver)/launch/ur10_bringup.launch">
-   <arg name="robot_ip" value="192.168.1.108"/>
+   <arg name="robot_ip" value="10.121.8.77"/>
  </include>
 
  <!--node name="aws_gateway_node" pkg="aws_gateway" type="AWS_ROS_pubsub" respawn="false" output="screen" args="$(arg aws_config)" /-->
