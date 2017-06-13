@@ -31,6 +31,7 @@ parts:
 
   python-plugin:
     plugin: python
+    python-version: python2
     source: git://github.com/aws/aws-iot-device-sdk-python.git
     source-tag: v1.1.1
 
