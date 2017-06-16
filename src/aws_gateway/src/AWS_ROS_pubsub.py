@@ -23,10 +23,10 @@ class AWS_ROS_Comm:
         rootCAPath = ""
         certificatePath = ""
         privateKeyPath = ""
-        host = rospy.get_param("aws_service_location")
-        rootCAPath = rospy.get_param("aws_service_root_CA")
-        certificatePath = rospy.get_param("aws_service_cert")
-        privateKeyPath = rospy.get_param("aws_service_private_key")
+        host = rospy.get_param("~aws_service_location")
+        rootCAPath = rospy.get_param("~aws_service_root_CA")
+        certificatePath = rospy.get_param("~aws_service_cert")
+        privateKeyPath = rospy.get_param("~aws_service_private_key")
         useWebsocket = False
 
 

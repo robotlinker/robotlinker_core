@@ -12,7 +12,7 @@ add_message_files(
   NOINSTALL
 )
 
-catkin_python_setup()
+#catkin_python_setup()
 
 # Generate added messages and services with any dependencies listed here
 generate_messages(
@@ -27,7 +27,13 @@ add_rostest(test/test_all.test)
 
 install(DIRECTORY launch/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
 catkin_install_python(PROGRAMS
-                      src/AWS_ROS_pubsub
+                      src/AWS_ROS_pubsub.py
+                      DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+catkin_install_python(PROGRAMS
+                      src/json_message_converter.py
+                      DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+catkin_install_python(PROGRAMS
+                      src/message_converter.py
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 #install(PROGRAMS

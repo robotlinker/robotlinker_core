@@ -28,10 +28,44 @@ parts:
       - ur_modern_driver
       - ur_msgs
     include-roscore: true
+    filesets:
+        no-easy-install-files:
+        - -usr/bin/2to3-2.7
+        - -usr/bin/pydoc2.7
+        - -usr/lib/python2.7/UserString.py
+        - -usr/lib/python2.7/base64.py
+        - -usr/lib/python2.7/cProfile.py
+        - -usr/lib/python2.7/cgi.py
+        - -usr/lib/python2.7/encodings/rot_13.py
+        - -usr/lib/python2.7/ensurepip/__init__.py
+        - -usr/lib/python2.7/keyword.py
+        - -usr/lib/python2.7/lib2to3/pgen2/token.py
+        - -usr/lib/python2.7/mimify.py
+        - -usr/lib/python2.7/pdb.py
+        - -usr/lib/python2.7/platform.py
+        - -usr/lib/python2.7/profile.py
+        - -usr/lib/python2.7/pydoc.py
+        - -usr/lib/python2.7/quopri.py
+        - -usr/lib/python2.7/sitecustomize.py
+        - -usr/lib/python2.7/smtpd.py
+        - -usr/lib/python2.7/smtplib.py
+        - -usr/lib/python2.7/symbol.py
+        - -usr/lib/python2.7/tabnanny.py
+        - -usr/lib/python2.7/test/pystone.py
+        - -usr/lib/python2.7/test/regrtest.py
+        - -usr/lib/python2.7/timeit.py
+        - -usr/lib/python2.7/trace.py
+        - -usr/lib/python2.7/uu.py
+        - -usr/lib/python2.7/webbrowser.py
+        - -usr/share/python/dh_python2
+        - -usr/share/python/pyversions.py
+    stage:
+        - $no-easy-install-files
+    snap:
+        - $no-easy-install-files
 
   python-plugin:
     plugin: python
     python-version: python2
-    source: git://github.com/aws/aws-iot-device-sdk-python.git
-    source-tag: v1.1.1
+    python-packages: [AWSIoTPythonSDK]
 
