@@ -19,7 +19,8 @@ float64[] tool_acc_values
 float64[] tcp_force
 float64[] tool_vector
 float64[] tcp_speed
-float64 digital_input_bits
+#float64 digital_input_bits
+bool[] digital_input_bits
 float64[] motor_temperatures
 float64 controller_timer
 float64 test_value

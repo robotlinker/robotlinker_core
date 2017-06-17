@@ -36,6 +36,10 @@ catkin_install_python(PROGRAMS
                       src/message_converter.py
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
+install(DIRECTORY
+	aws_keys
+	DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 #install(PROGRAMS
 #        src/AWS_ROS_pubsub
 #        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

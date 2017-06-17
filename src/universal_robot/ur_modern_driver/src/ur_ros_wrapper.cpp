@@ -47,6 +47,8 @@
 #include "ur_msgs/IOStates.h"
 #include "ur_msgs/Digital.h"
 #include "ur_msgs/Analog.h"
+#include "ur_msgs/RobotStateRTMsg.h"
+
 #include "std_msgs/String.h"
 #include <controller_manager/controller_manager.h>
 #include <realtime_tools/realtime_publisher.h>
@@ -649,77 +651,111 @@ private:
 	}
 
 	void publishRTMsg() {
-		ros::Publisher joint_pub = nh_.advertise<sensor_msgs::JointState>(
-				"joint_states", 1);
-		ros::Publisher wrench_pub = nh_.advertise<geometry_msgs::WrenchStamped>(
-				"wrench", 1);
-        ros::Publisher tool_vel_pub = nh_.advertise<geometry_msgs::TwistStamped>("tool_velocity", 1);
-        static tf::TransformBroadcaster br;
-		while (ros::ok()) {
-			sensor_msgs::JointState joint_msg;
-			joint_msg.name = robot_.getJointNames();
-			geometry_msgs::WrenchStamped wrench_msg;
-            geometry_msgs::PoseStamped tool_pose_msg;
-			std::mutex msg_lock; // The values are locked for reading in the class, so just use a dummy mutex
-			std::unique_lock<std::mutex> locker(msg_lock);
-			while (!robot_.rt_interface_->robot_state_->getDataPublished()) {
-				rt_msg_cond_.wait(locker);
-			}
-			joint_msg.header.stamp = ros::Time::now();
-			joint_msg.position =
-					robot_.rt_interface_->robot_state_->getQActual();
-			for (unsigned int i = 0; i < joint_msg.position.size(); i++) {
-				joint_msg.position[i] += joint_offsets_[i];
-			}
-			joint_msg.velocity =
-					robot_.rt_interface_->robot_state_->getQdActual();
-			joint_msg.effort = robot_.rt_interface_->robot_state_->getIActual();
-			joint_pub.publish(joint_msg);
-			std::vector<double> tcp_force =
-					robot_.rt_interface_->robot_state_->getTcpForce();
-			wrench_msg.header.stamp = joint_msg.header.stamp;
-			wrench_msg.wrench.force.x = tcp_force[0];
-			wrench_msg.wrench.force.y = tcp_force[1];
-			wrench_msg.wrench.force.z = tcp_force[2];
-			wrench_msg.wrench.torque.x = tcp_force[3];
-			wrench_msg.wrench.torque.y = tcp_force[4];
-			wrench_msg.wrench.torque.z = tcp_force[5];
-			wrench_pub.publish(wrench_msg);
+	    ros::Publisher joint_pub = nh_.advertise<sensor_msgs::JointState>("joint_states", 1);
+	    ros::Publisher wrench_pub = nh_.advertise<geometry_msgs::WrenchStamped>("wrench", 1);
+            ros::Publisher tool_vel_pub = nh_.advertise<geometry_msgs::TwistStamped>("tool_velocity", 1);
+            ros::Publisher robot_rt_pub = nh_.advertise<ur_msgs::RobotStateRTMsg>("robot_stateRT", 1);
+	    
+            static tf::TransformBroadcaster br;
 
-            // Tool vector: Actual Cartesian coordinates of the tool: (x,y,z,rx,ry,rz), where rx, ry and rz is a rotation vector representation of the tool orientation
-            std::vector<double> tool_vector_actual = robot_.rt_interface_->robot_state_->getToolVectorActual();
+	    while (ros::ok()) {
+		sensor_msgs::JointState joint_msg;
+		joint_msg.name = robot_.getJointNames();
+		geometry_msgs::WrenchStamped wrench_msg;
+            	geometry_msgs::PoseStamped tool_pose_msg;
+		ur_msgs::RobotStateRTMsg robot_state_rt;
 
-            //Create quaternion
-            tf::Quaternion quat;
-            double rx = tool_vector_actual[3];
-            double ry = tool_vector_actual[4];
-            double rz = tool_vector_actual[5];
-            double angle = std::sqrt(std::pow(rx,2) + std::pow(ry,2) + std::pow(rz,2));
-            if (angle < 1e-16) {
-                quat.setValue(0, 0, 0, 1);
-            } else {
-                quat.setRotation(tf::Vector3(rx/angle, ry/angle, rz/angle), angle);
-            }
+		std::mutex msg_lock; // The values are locked for reading in the class, so just use a dummy mutex
+		std::unique_lock<std::mutex> locker(msg_lock);
+		while (!robot_.rt_interface_->robot_state_->getDataPublished()) {
+			rt_msg_cond_.wait(locker);
+		}
 
-            //Create and broadcast transform
-            tf::Transform transform;
-            transform.setOrigin(tf::Vector3(tool_vector_actual[0], tool_vector_actual[1], tool_vector_actual[2]));
-            transform.setRotation(quat);
-            br.sendTransform(tf::StampedTransform(transform, joint_msg.header.stamp, base_frame_, tool_frame_));
+		// TODO: get robot state rt: Unpublished variables: digital_input_bits; test_value
+    		robot_state_rt.time = robot_.rt_interface_->robot_state_->getTime();
+    		robot_state_rt.q_target = robot_.rt_interface_->robot_state_->getQTarget();
+    		robot_state_rt.qd_target = robot_.rt_interface_->robot_state_->getQdTarget();
+    		robot_state_rt.qdd_target = robot_.rt_interface_->robot_state_->getQddTarget();
+    		robot_state_rt.i_target = robot_.rt_interface_->robot_state_->getITarget();
+    		robot_state_rt.m_target = robot_.rt_interface_->robot_state_->getMTarget();
+    		robot_state_rt.q_actual = robot_.rt_interface_->robot_state_->getQActual();
+    		robot_state_rt.qd_actual = robot_.rt_interface_->robot_state_->getQdActual();
+    		robot_state_rt.i_actual = robot_.rt_interface_->robot_state_->getIActual();
+    		robot_state_rt.tool_acc_values = robot_.rt_interface_->robot_state_->getToolAccelerometerValues();
+    		robot_state_rt.tcp_force = robot_.rt_interface_->robot_state_->getTcpForce();
+    		robot_state_rt.tool_vector = robot_.rt_interface_->robot_state_->getToolVectorActual();
+    		robot_state_rt.tcp_speed = robot_.rt_interface_->robot_state_->getTcpSpeedActual();
+    		std::vector<bool> digit = robot_.rt_interface_->robot_state_->getDigitalInputBits();
+		std::vector<uint8_t> digit_int;
 
-            //Publish tool velocity
-            std::vector<double> tcp_speed =
-                    robot_.rt_interface_->robot_state_->getTcpSpeedActual();
-            geometry_msgs::TwistStamped tool_twist;
-            tool_twist.header.frame_id = base_frame_;
-            tool_twist.header.stamp = joint_msg.header.stamp;
-            tool_twist.twist.linear.x = tcp_speed[0];
-            tool_twist.twist.linear.y = tcp_speed[1];
-            tool_twist.twist.linear.z = tcp_speed[2];
-            tool_twist.twist.angular.x = tcp_speed[3];
-            tool_twist.twist.angular.y = tcp_speed[4];
-            tool_twist.twist.angular.z = tcp_speed[5];
-            tool_vel_pub.publish(tool_twist);
+		for (int i=0; i<digit.size(); i++)
+		    digit_int.push_back(uint8_t(digit[i]));
+		    
+		
+    		robot_state_rt.digital_input_bits = digit_int;
+    		robot_state_rt.motor_temperatures = robot_.rt_interface_->robot_state_->getMotorTemperatures();
+    		robot_state_rt.controller_timer = robot_.rt_interface_->robot_state_->getControllerTimer();
+    		//robot_state_rt.test_value = robot_.rt_interface->robot_state_->gstateRT.test_value;
+    		robot_state_rt.robot_mode = robot_.rt_interface_->robot_state_->getRobotMode();
+    		robot_state_rt.joint_modes = robot_.rt_interface_->robot_state_->getJointModes();
+		robot_rt_pub.publish(robot_state_rt);
+		
+		
+		joint_msg.header.stamp = ros::Time::now();
+		joint_msg.position = robot_.rt_interface_->robot_state_->getQActual();
+
+		for (unsigned int i = 0; i < joint_msg.position.size(); i++) {
+			joint_msg.position[i] += joint_offsets_[i];
+		}
+
+		joint_msg.velocity = robot_.rt_interface_->robot_state_->getQdActual();
+		joint_msg.effort = robot_.rt_interface_->robot_state_->getIActual();
+		joint_pub.publish(joint_msg);
+
+		std::vector<double> tcp_force = robot_.rt_interface_->robot_state_->getTcpForce();
+		wrench_msg.header.stamp = joint_msg.header.stamp;
+		wrench_msg.wrench.force.x = tcp_force[0];
+		wrench_msg.wrench.force.y = tcp_force[1];
+		wrench_msg.wrench.force.z = tcp_force[2];
+		wrench_msg.wrench.torque.x = tcp_force[3];
+		wrench_msg.wrench.torque.y = tcp_force[4];
+		wrench_msg.wrench.torque.z = tcp_force[5];
+		wrench_pub.publish(wrench_msg);
+
+                // Tool vector: Actual Cartesian coordinates of the tool: (x,y,z,rx,ry,rz), where rx, ry and rz is a rotation vector representation of the tool orientation
+                std::vector<double> tool_vector_actual = robot_.rt_interface_->robot_state_->getToolVectorActual();
+
+                //Create quaternion
+                tf::Quaternion quat;
+                double rx = tool_vector_actual[3];
+                double ry = tool_vector_actual[4];
+                double rz = tool_vector_actual[5];
+                double angle = std::sqrt(std::pow(rx,2) + std::pow(ry,2) + std::pow(rz,2));
+                if (angle < 1e-16) {
+                    quat.setValue(0, 0, 0, 1);
+                } else {
+                    quat.setRotation(tf::Vector3(rx/angle, ry/angle, rz/angle), angle);
+                }
+
+                //Create and broadcast transform
+                tf::Transform transform;
+                transform.setOrigin(tf::Vector3(tool_vector_actual[0], tool_vector_actual[1], tool_vector_actual[2]));
+                transform.setRotation(quat);
+                br.sendTransform(tf::StampedTransform(transform, joint_msg.header.stamp, base_frame_, tool_frame_));
+
+                //Publish tool velocity
+                std::vector<double> tcp_speed =
+                        robot_.rt_interface_->robot_state_->getTcpSpeedActual();
+                geometry_msgs::TwistStamped tool_twist;
+                tool_twist.header.frame_id = base_frame_;
+                tool_twist.header.stamp = joint_msg.header.stamp;
+                tool_twist.twist.linear.x = tcp_speed[0];
+                tool_twist.twist.linear.y = tcp_speed[1];
+                tool_twist.twist.linear.z = tcp_speed[2];
+                tool_twist.twist.angular.x = tcp_speed[3];
+                tool_twist.twist.angular.y = tcp_speed[4];
+                tool_twist.twist.angular.z = tcp_speed[5];
+                tool_vel_pub.publish(tool_twist);
 
 			robot_.rt_interface_->robot_state_->setDataPublished();
 		}
