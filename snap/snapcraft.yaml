@@ -6,13 +6,12 @@ confinement: strict
 
 apps:
   launch-robot:
-    command: roslaunch ur_modern_driver robotlinker_demo.launch
-    plugs: [network, network-bind]
- 
-  launch-aws:
-    command: roslaunch aws_gateway aws_test.launch
+    command: roslaunch ur_modern_driver robotlinker_demo.launch robot_ip:=$SNAP_USER_DATA/config/robot_ips.txt
     plugs: [network, network-bind]
 
+  launch-aws:
+    command: roslaunch aws_gateway aws_test.launch service_cert:=$SNAP_USER_DATA/keys/service.crt service_key:=$SNAP_USER_DATA/keys/service.key location:=$SNAP_USER_DATA/config/location.txt
+    plugs: [network, network-bind]
 
 parts:
   demo-project:

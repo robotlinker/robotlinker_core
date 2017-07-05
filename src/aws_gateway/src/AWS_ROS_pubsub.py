@@ -23,11 +23,16 @@ class AWS_ROS_Comm:
         rootCAPath = ""
         certificatePath = ""
         privateKeyPath = ""
-        host = rospy.get_param("~aws_service_location")
+        host_file_addr = rospy.get_param("~aws_service_location")
         rootCAPath = rospy.get_param("~aws_service_root_CA")
         certificatePath = rospy.get_param("~aws_service_cert")
         privateKeyPath = rospy.get_param("~aws_service_private_key")
         useWebsocket = False
+
+        host_file = open(host_file_addr, 'r')
+        host = host_file.readline()[:-1]
+
+
 
 
 #        try:

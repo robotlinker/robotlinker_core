@@ -20,6 +20,8 @@
 #include "ur_modern_driver/ur_hardware_interface.h"
 #include "ur_modern_driver/do_output.h"
 #include <string.h>
+#include <iostream>
+#include <fstream>
 #include <vector>
 #include <mutex>
 #include <condition_variable>
@@ -56,6 +58,8 @@
 /// TF
 #include <tf/tf.h>
 #include <tf/transform_broadcaster.h>
+
+using namespace std;
 
 class RosWrapper {
 protected:
@@ -835,6 +839,7 @@ private:
 int main(int argc, char **argv) {
 	bool use_sim_time = false;
 	std::string host;
+	std::string host_addr;
 	int reverse_port = 50001;
 
 	ros::init(argc, argv, "ur_driver");
@@ -842,18 +847,26 @@ int main(int argc, char **argv) {
 	if (ros::param::get("use_sim_time", use_sim_time)) {
 		print_warning("use_sim_time is set!!");
 	}
-	if (!(ros::param::get("~robot_ip_address", host))) {
-		if (argc > 1) {
-			print_warning(
-					"Please set the parameter robot_ip_address instead of giving it as a command line argument. This method is DEPRECATED");
-			host = argv[1];
-		} else {
-			print_fatal(
-					"Could not get robot ip. Please supply it as command line parameter or on the parameter server as robot_ip");
-			exit(1);
-		}
+	ros::param::get("~robot_ip_address", host_addr);
+    //ROS_INFO("hello!!! %s", host_addr.c_str());
+    ifstream file(host_addr);
+    getline(file, host);
+    file.close();
+    //ROS_INFO("hello %s", host.c_str());
 
-	}
+	//if (!(ros::param::get("~robot_ip_address", host_addr))) {
+	//	if (argc > 1) {
+	//		print_warning(
+	//				"Please set the parameter robot_ip_address instead of giving it as a command line argument. This method is DEPRECATED");
+    //        //std::string file_location = argv[1];
+    //        
+	//	} else {
+	//		print_fatal(
+	//				"Could not get robot ip. Please supply it as command line parameter or on the parameter server as robot_ip");
+	//		exit(1);
+	//	}
+
+	//}
 	if ((ros::param::get("~reverse_port", reverse_port))) {
 		if((reverse_port <= 0) or (reverse_port >= 65535)) {
 			print_warning("Reverse port value is not valid (Use number between 1 and 65534. Using default value of 50001");
