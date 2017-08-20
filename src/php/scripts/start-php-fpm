@@ -1,0 +1,35 @@
+#!/bin/sh
+
+. $SNAP/utilities/mysql-utilities
+. $SNAP/utilities/php-utilities
+. $SNAP/utilities/redis-utilities
+. $SNAP/utilities/server-utilities
+
+mkdir -p -m 750 ${SNAP_DATA}/php
+
+# We need to make sure mysql is running so we can run the migration process
+wait_for_mysql
+
+# Wait until we have an robotlinker_core mysql password
+echo -n "Obtaining robotlinker_core mysql credentials... "
+robotlinker_core_password_path=$SNAP_DATA/mysql/robotlinker_core_password
+timeout=10
+while [ $timeout -gt 0 -a ! -e $robotlinker_core_password_path ]; do
+	timeout=$((timeout-1))
+	sleep 1
+done
+if [ ! -e $robotlinker_core_password_path ]; then
+	echo ""
+	echo -n "Timed out while attempting to obtain robotlinker_core mysql password. "
+	echo -n "This isn't unusual when starting up for the first time after "
+	echo "an install or an upgrade. Will try again."
+	exit 1
+fi
+echo "done"
+
+# Tends to be between 30-50MB
+average_php_memory_requirement=50
+total_memory=$(mawk '/MemTotal/ {printf "%d", $2/1024}' /proc/meminfo)
+export PHP_FPM_MAX_CHILDREN=$(($total_memory/$average_php_memory_requirement))
+
+php-fpm -R -F --fpm-config ${SNAP}/config/php/php-fpm.conf -c ${SNAP}/config/php

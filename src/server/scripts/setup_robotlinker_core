@@ -1,0 +1,64 @@
+#!/bin/sh
+
+. $SNAP/utilities/php-utilities
+. $SNAP/utilities/mysql-utilities
+. $SNAP/utilities/robotlinker_core-utilities
+. $SNAP/utilities/redis-utilities
+
+# Make sure robotlinker_core directory exists
+mkdir -p -m 750 $SNAP_COMMON/robotlinker_core
+
+# Make sure robotlinker_core tmp directory exists
+mkdir -p -m 750 $SNAP_COMMON/robotlinker_core/tmp
+
+# Make sure robotlinker_core extra-apps directory exists (for user apps)
+mkdir -p -m 750 $SNAP_DATA/robotlinker_core/extra-apps
+
+# We need both PHP and redis up and running before we can use occ
+wait_for_php
+wait_for_redis
+
+# If this is a new install, make sure it's configured correctly
+if [ ! -d "$ROBOTLINKER_CORE_CONFIG_DIR" ]; then
+	echo "Configuring Robotlinker_core..."
+	cp -r $SNAP/htdocs/config $ROBOTLINKER_CORE_CONFIG_DIR
+else
+	# This is not a new installation, so we don't want to overwrite the config.
+	# However, we recently changed the location of sockets in the snap, so we
+	# need to make sure the config is using the new location.
+	sed -ri "s|('host'\s*=>\s*)'/var/snap/.*redis.sock'|\1'$REDIS_SOCKET'|" $ROBOTLINKER_CORE_CONFIG_DIR/config.php
+	sed -ri "s|('dbhost'\s*=>\s*)'localhost:/var/snap/.*mysql.sock'|\1'localhost:$MYSQL_SOCKET'|" $ROBOTLINKER_CORE_CONFIG_DIR/config.php
+
+	# We'll also always copy over the autoconfig.php, since it's only used
+	# upon installation. Just in case they haven't done that yet.
+	cp -r $SNAP/htdocs/config/autoconfig.php $ROBOTLINKER_CORE_CONFIG_DIR/
+
+	# Also make sure we're using Redis for the memcache and file locking.
+	occ config:system:set redis host --value="$REDIS_SOCKET" --type=string
+	occ config:system:set redis port --value=0 --type=integer
+	occ config:system:set memcache.locking --value="\OC\Memcache\Redis" --type=string
+	occ config:system:set memcache.local --value="\OC\Memcache\Redis" --type=string
+fi
+
+# Finally, make sure robotlinker_core is up to date. The return code of the upgrade
+# can be used to determine the outcome:
+#    succes = 0;
+#    not installed = 1;
+#    in maintenance mode = 2;
+#    already up to date = 3;
+#    invalid arguments  = 4;
+#    other failure = 5;
+echo "Making sure robotlinker_core is fully upgraded..."
+occ upgrade --no-interaction
+return_code=$?
+if [ $return_code -eq 1 ]; then
+	echo "robotlinker_core is not yet installed-- no upgrade necessary"
+elif [ $return_code -eq 3 ]; then
+	echo "robotlinker_core is fully upgraded"
+elif [ $return_code -ne 0 ]; then
+	echo "Unable to upgrade robotlinker_core. Will try again."
+	# occ may have left it in maintenance mode, so turn that off
+	occ maintenance:mode --off
+	sleep 10 # Delaying here so systemd doesn't throttle us
+	exit 1
+fi

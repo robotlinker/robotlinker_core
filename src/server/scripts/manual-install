@@ -1,0 +1,64 @@
+#!/bin/sh
+
+. $SNAP/utilities/php-utilities
+. $SNAP/utilities/mysql-utilities
+. $SNAP/utilities/server-utilities
+
+COMMAND="robotlinker_core.manual-install"
+
+print_usage()
+{
+	echo "Usage:"
+	echo "    $COMMAND -h"
+	echo "    Display this help message."
+	echo ""
+	echo "    $COMMAND <username> <password>"
+	echo "    Install robotlinker_core, creating the admin user with the provided"
+	echo "    credentials."
+}
+
+while getopts ":h" opt; do
+	case $opt in
+		h)
+			print_usage
+			exit 0
+			;;
+		\?)
+			echo "Invalid option: -$OPTARG" >&2
+			exit 1
+			;;
+	esac
+done
+shift $((OPTIND-1))
+
+if [ $# != 2 ]; then
+	echo "Expected two parameters. Run '$COMMAND -h' for help." >&2
+	exit 1
+fi
+
+if [ $(id -u) -ne 0 ]; then
+	echo "This utility needs to run as root"
+	exit 1
+fi
+
+username=$1
+password=$2
+
+# We can't do anything until PHP and MySQL are up and running
+wait_for_php
+wait_for_mysql
+
+# Now we can use 'occ maintenance:install'
+
+mysql_robotlinker_core_password="$(mysql_get_robotlinker_core_password)"
+if [ -n "$mysql_robotlinker_core_password" ]; then
+	occ maintenance:install \
+		--database="mysql" \
+		--database-name="robotlinker_core" \
+		--database-user="robotlinker_core" \
+		--database-host="localhost:$MYSQL_SOCKET" \
+		--database-pass="$mysql_robotlinker_core_password" \
+		--data-dir="$robotlinker_core_DATA_DIR" \
+		--admin-user="$username" \
+		--admin-pass="$password"
+fi

@@ -23,6 +23,7 @@ class AWS_ROS_Comm:
         rootCAPath = ""
         certificatePath = ""
         privateKeyPath = ""
+        print "debug here"
         host_file_addr = rospy.get_param("~aws_service_location")
         rootCAPath = rospy.get_param("~aws_service_root_CA")
         certificatePath = rospy.get_param("~aws_service_cert")
@@ -31,9 +32,6 @@ class AWS_ROS_Comm:
 
         host_file = open(host_file_addr, 'r')
         host = host_file.readline()[:-1]
-
-
-
 
 #        try:
 #        	opts, args = getopt.getopt(sys.argv[1:], "hwe:k:c:r:", ["help", "endpoint=", "key=","cert=","rootCA=", "websocket"])

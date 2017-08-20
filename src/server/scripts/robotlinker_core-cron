@@ -1,0 +1,15 @@
+#!/bin/sh
+
+. $SNAP/utilities/robotlinker_core-utilities
+
+echo -n "Waiting for Robotlinker_core config dir... "
+while [ ! -d "$ROBOTLINKER_CORE_CONFIG_DIR" ]; do
+	sleep 1
+done
+
+echo "done"
+
+while true; do
+	php -c $SNAP/config/php $SNAP/htdocs/cron.php
+	sleep 15m
+done

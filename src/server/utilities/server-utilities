@@ -1,0 +1,20 @@
+#!/bin/sh
+
+export ROBOTLINKER_CORE_CONFIG_DIR=$SNAP_DATA/robotlinker_core/config
+export ROBOTLINKER_CORE_DATA_DIR=$SNAP_COMMON/robotlinker_core/data
+
+robotlinker_core_is_configured()
+{
+	[ -d "$ROBOTLINKER_CORE_CONFIG_DIR" ]
+}
+
+wait_for_robotlinker_core_to_be_configured()
+{
+	if ! robotlinker_core_is_configured; then
+		echo -n "Waiting for Robotlinker Core to be configured... "
+		while ! robotlinker_core_is_configured; do
+			sleep 1
+		done
+		echo "done"
+	fi
+}
