@@ -61,6 +61,129 @@ parts:
     include-roscore: true
     filesets:
         no-easy-install-files:
+        - -lib/x86_64-linux-gnu/libcrypto.so.1.0.0
+        - -lib/x86_64-linux-gnu/libexpat.so.1.6.0
+        - -lib/x86_64-linux-gnu/libssl.so.1.0.0
+        - -usr/bin/python2.7
+        - -usr/lib/python2.7/BaseHTTPServer.py
+        - -usr/lib/python2.7/Cookie.py
+        - -usr/lib/python2.7/SimpleHTTPServer.py
+        - -usr/lib/python2.7/SocketServer.py
+        - -usr/lib/python2.7/_LWPCookieJar.py
+        - -usr/lib/python2.7/_osx_support.py
+        - -usr/lib/python2.7/_pyio.py
+        - -usr/lib/python2.7/calendar.py
+        - -usr/lib/python2.7/collections.py
+        - -usr/lib/python2.7/ctypes/__init__.py
+        - -usr/lib/python2.7/ctypes/_endian.py
+        - -usr/lib/python2.7/ctypes/util.py
+        - -usr/lib/python2.7/ctypes/wintypes.py
+        - -usr/lib/python2.7/decimal.py
+        - -usr/lib/python2.7/difflib.py
+        - -usr/lib/python2.7/distutils/cygwinccompiler.py
+        - -usr/lib/python2.7/distutils/msvc9compiler.py
+        - -usr/lib/python2.7/email/message.py
+        - -usr/lib/python2.7/email/parser.py
+        - -usr/lib/python2.7/encodings/utf_32.py
+        - -usr/lib/python2.7/getopt.py
+        - -usr/lib/python2.7/gzip.py
+        - -usr/lib/python2.7/heapq.py
+        - -usr/lib/python2.7/hotshot/__init__.py
+        - -usr/lib/python2.7/lib-dynload/Python-2.7.egg-info
+        - -usr/lib/python2.7/lib-dynload/_bsddb.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_codecs_cn.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_codecs_hk.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_codecs_iso2022.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_codecs_jp.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_codecs_kr.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_codecs_tw.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_csv.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_ctypes.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_ctypes_test.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_curses.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_curses_panel.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_elementtree.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_hashlib.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_hotshot.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_json.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_lsprof.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_multibytecodec.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_multiprocessing.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_sqlite3.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_ssl.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/_testcapi.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/audioop.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/bz2.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/crypt.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/dbm.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/fpectl.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/future_builtins.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/linuxaudiodev.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/mmap.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/nis.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/ossaudiodev.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/parser.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/pyexpat.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/readline.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/resource.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-dynload/termios.x86_64-linux-gnu.so
+        - -usr/lib/python2.7/lib-tk/Tix.py
+        - -usr/lib/python2.7/lib-tk/Tkdnd.py
+        - -usr/lib/python2.7/lib-tk/Tkinter.py
+        - -usr/lib/python2.7/lib-tk/ttk.py
+        - -usr/lib/python2.7/lib2to3/btm_utils.py
+        - -usr/lib/python2.7/lib2to3/fixer_base.py
+        - -usr/lib/python2.7/lib2to3/fixes/fix_metaclass.py
+        - -usr/lib/python2.7/lib2to3/patcomp.py
+        - -usr/lib/python2.7/lib2to3/refactor.py
+        - -usr/lib/python2.7/locale.py
+        - -usr/lib/python2.7/mailbox.py
+        - -usr/lib/python2.7/mimetypes.py
+        - -usr/lib/python2.7/modulefinder.py
+        - -usr/lib/python2.7/multiprocessing/managers.py
+        - -usr/lib/python2.7/mutex.py
+        - -usr/lib/python2.7/ntpath.py
+        - -usr/lib/python2.7/optparse.py
+        - -usr/lib/python2.7/os2emxpath.py
+        - -usr/lib/python2.7/pdb.doc
+        - -usr/lib/python2.7/plat-x86_64-linux-gnu/_sysconfigdata_nd.py
+        - -usr/lib/python2.7/posixpath.py
+        - -usr/lib/python2.7/pstats.py
+        - -usr/lib/python2.7/pydoc_data/topics.py
+        - -usr/lib/python2.7/rfc822.py
+        - -usr/lib/python2.7/robotparser.py
+        - -usr/lib/python2.7/socket.py
+        - -usr/lib/python2.7/ssl.py
+        - -usr/lib/python2.7/subprocess.py
+        - -usr/lib/python2.7/unittest/case.py
+        - -usr/lib/python2.7/unittest/result.py
+        - -usr/lib/python2.7/urllib.py
+        - -usr/lib/python2.7/urllib2.py
+        - -usr/lib/python2.7/wsgiref/headers.py
+        - -usr/lib/python2.7/xml/etree/ElementTree.py
+        - -usr/lib/python2.7/xmlrpclib.py
+        - -usr/lib/x86_64-linux-gnu/libexpatw.so.1.6.0
+        - -usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/lib4758cca.so
+        - -usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/libaep.so
+        - -usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/libatalla.so
+        - -usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/libcapi.so
+        - -usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/libchil.so
+        - -usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/libcswift.so
+        - -usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/libgmp.so
+        - -usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/libgost.so
+        - -usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/libnuron.so
+        - -usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/libpadlock.so
+        - -usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/libsureware.so
+        - -usr/lib/x86_64-linux-gnu/openssl-1.0.0/engines/libubsec.so
+        - -usr/share/doc/libexpat1/changelog.Debian.gz
+        - -usr/share/doc/libpython2.7-minimal/changelog.Debian.gz
+        - -usr/share/doc/libpython2.7-minimal/copyright
+        - -usr/share/doc/libssl1.0.0/changelog.Debian.gz
+        - -usr/share/doc/python2.7-minimal/copyright
+        - -usr/share/doc/python2.7/ACKS.gz
+        - -usr/share/doc/python2.7/NEWS.gz
+        - -usr/share/doc/python2.7/README.gz
+        - -usr/share/doc/python2.7/copyright
         - -usr/bin/2to3-2.7
         - -usr/bin/pydoc2.7
         - -usr/lib/python2.7/UserString.py
@@ -90,6 +213,7 @@ parts:
         - -usr/lib/python2.7/webbrowser.py
         - -usr/share/python/dh_python2
         - -usr/share/python/pyversions.py
+
     stage:
         - $no-easy-install-files
     snap:
