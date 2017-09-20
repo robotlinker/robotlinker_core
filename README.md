@@ -6,6 +6,7 @@
 ### UR Simulator
 * Download [UR Simulator](https://www.universal-robots.com/download/)
 * Unzip 
+* Install Oracle JDK8 [JDK installation] (https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04)
 * In `install.sh`, replace `openjdk-6-jre` with  `openjdk-8-jre`
 * Install `bash install.sh`
 * change the following to be executable `sudo chmod +x filename.sh`
