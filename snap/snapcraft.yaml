@@ -1,0 +1,103 @@
+name: robotlinker-core
+version: 1.0.0
+summary: robotlinker core
+description: Core software module of robotlinker Copyright 2017, www.robotlinker.com. 
+
+grade: stable
+confinement: strict
+
+apps:
+
+ # ROS-I driver
+  launch-robot-driver:
+    command: roslaunch ur_modern_driver robotlinker_demo.launch robot_ip:=$SNAP_USER_DATA/config/robot_ips.txt
+    plugs: [network, network-bind]
+
+ # AWS-IoT clienct
+  launch-aws:
+    command: roslaunch aws_gateway aws_test.launch service_cert:=$SNAP_USER_DATA/keys/service.crt service_key:=$SNAP_USER_DATA/keys/service.key location:=$SNAP_USER_DATA/config/location.txt
+    plugs: [network, network-bind]
+
+ # ROS-bridge server
+  launch-rosbridge:
+    command: roslaunch rosbridge_server rosbridge_websocket.launch
+    plugs: [network, network-bind]
+
+ # tf2-web-repubisher
+  launch-tf2-web-republisher:
+    command: roslaunch tf2_web_republisher tf2_web_republisher.launch
+    plugs: [network, network-bind]
+
+ # ur10-moveit-config
+  launch-robot-moveit-config:
+    command: roslaunch ur10_moveit_config demo_webserver.launch
+    plugs: [network, network-bind]
+
+ # Admin webserver
+  node-service:
+    command: bin/node-sbadmin
+    daemon: simple
+    restart-condition: always
+    plugs: [network, network-bind]
+
+
+parts:
+  webserver:
+    source: src/webserver
+    plugin: nodejs
+
+  demo-project:
+    plugin: catkin
+    source: .
+    rosdistro: kinetic
+    catkin-packages:
+      - aws_gateway
+      - rosbridge_server
+      - ur_description
+      - ur_modern_driver
+      - ur_msgs
+      - tf2_web_republisher
+      - ur10_moveit_config
+    include-roscore: true
+    filesets:
+        no-easy-install-files:
+        - -usr/bin/2to3-2.7
+        - -usr/bin/pydoc2.7
+        - -usr/lib/python2.7/UserString.py
+        - -usr/lib/python2.7/base64.py
+        - -usr/lib/python2.7/cProfile.py
+        - -usr/lib/python2.7/cgi.py
+        - -usr/lib/python2.7/encodings/rot_13.py
+        - -usr/lib/python2.7/ensurepip/__init__.py
+        - -usr/lib/python2.7/keyword.py
+        - -usr/lib/python2.7/lib2to3/pgen2/token.py
+        - -usr/lib/python2.7/mimify.py
+        - -usr/lib/python2.7/pdb.py
+        - -usr/lib/python2.7/platform.py
+        - -usr/lib/python2.7/profile.py
+        - -usr/lib/python2.7/pydoc.py
+        - -usr/lib/python2.7/quopri.py
+        - -usr/lib/python2.7/sitecustomize.py
+        - -usr/lib/python2.7/smtpd.py
+        - -usr/lib/python2.7/smtplib.py
+        - -usr/lib/python2.7/symbol.py
+        - -usr/lib/python2.7/tabnanny.py
+        - -usr/lib/python2.7/test/pystone.py
+        - -usr/lib/python2.7/test/regrtest.py
+        - -usr/lib/python2.7/timeit.py
+        - -usr/lib/python2.7/trace.py
+        - -usr/lib/python2.7/uu.py
+        - -usr/lib/python2.7/webbrowser.py
+        - -usr/share/python/dh_python2
+        - -usr/share/python/pyversions.py
+    stage:
+        - $no-easy-install-files
+    snap:
+        - $no-easy-install-files
+
+  python-plugin:
+    plugin: python
+    python-version: python2
+    python-packages: [AWSIoTPythonSDK]
+  
+
