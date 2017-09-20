@@ -1,0 +1,230 @@
+<%layout('../layout')%>
+<div id="page-wrapper">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">Dashboard</h1>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+    <div class="row">
+        <div class="col-lg-3 col-md-6">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-comments fa-5x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge">26</div>
+                            <div>New Comments!</div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#">
+                    <div class="panel-footer">
+                        <span class="pull-left">View Details</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="panel panel-green">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-tasks fa-5x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge">12</div>
+                            <div>New Tasks!</div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#">
+                    <div class="panel-footer">
+                        <span class="pull-left">View Details</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="panel panel-yellow">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-shopping-cart fa-5x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge">124</div>
+                            <div>New Orders!</div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#">
+                    <div class="panel-footer">
+                        <span class="pull-left">View Details</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="panel panel-red">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-support fa-5x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge">13</div>
+                            <div>Support Tickets!</div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#">
+                    <div class="panel-footer">
+                        <span class="pull-left">View Details</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- /.row -->
+
+    <div class="row" /div>
+    <button type="button" class="btn btn-primary btn-lg">Connect Robot</button>
+       <input name="Connect Robot" id="like" value="Like" type="submit" />
+    </div>
+</div>
+<!-- /#page-wrapper -->
+<script src="/bower_components/morris.js/morris.min.js"></script>
+<script src="/js/morris-data.js"></script>
+<script src="/roslibjs/build/roslib.js"></script>
+<script>  
+  // Connecting to ROS
+  // -----------------
+  var ros = new ROSLIB.Ros();
+  var joint_value = [0,0,0,0,0,0];
+  var joint_value_deg =[0,0,0,0,0,0];
+  var robot_pose = [0,0,0,0,0,0];
+  var motor_temp = [0,0,0,0,0,0];
+  var tcp_speed = [0,0,0,0,0,0];
+  
+  // If there is an error on the backend, an 'error' emit will be emitted.
+  ros.on('error', function(error) {
+    document.getElementById('connecting').style.display = 'none';
+    document.getElementById('connected').style.display = 'none';
+    document.getElementById('closed').style.display = 'none';
+    document.getElementById('error').style.display = 'inline';
+    console.log(error);
+  });
+  // Find out exactly when we made a connection.
+  ros.on('connection', function() {
+    console.log('Connection made!');
+    //document.getElementById('connecting').style.display = 'none';
+    //document.getElementById('error').style.display = 'none';
+    //document.getElementById('closed').style.display = 'none';
+    //document.getElementById('connected').style.display = 'inline';
+  });
+  ros.on('close', function() {
+    console.log('Connection closed.');
+    document.getElementById('connecting').style.display = 'none';
+    document.getElementById('connected').style.display = 'none';
+    document.getElementById('closed').style.display = 'inline';
+  });
+  // Create a connection to the rosbridge WebSocket server.
+  //ros.connect('ws://localhost:9090');
+
+  // Publishing a Topic
+  // ------------------
+
+  // First, we create a Topic object with details of the topic's name and message type.
+  var cmdVel = new ROSLIB.Topic({
+    ros : ros,
+    name : '/cmd_vel',
+    messageType : 'geometry_msgs/Twist'
+  });
+
+  // Then we create the payload to be published. The object we pass in to ros.Message matches the
+  // fields defined in the geometry_msgs/Twist.msg definition.
+  var twist = new ROSLIB.Message({
+    linear : {
+      x : 0.1,
+      y : 0.2,
+      z : 0.3
+    },
+    angular : {
+      x : -0.1,
+      y : -0.2,
+      z : -0.3
+    }
+  });
+
+  // And finally, publish.
+  cmdVel.publish(twist);
+
+  //Subscribing to a Topic
+  //----------------------
+
+  // Like when publishing a topic, we first create a Topic object with details of the topic's name
+  // and message type. Note that we can call publish or subscribe on the same topic object.
+  var listener1 = new ROSLIB.Topic({
+    ros : ros,
+    name : '/joint_states',
+    messageType : 'sensor_msgs/JointState'
+  });
+
+  // Then we add a callback to be called every time a message is published on this topic.
+  listener1.subscribe(function(message) {
+  console.log('Received message on ' + listener1.name + ': ' + message.position);
+  joint_value = message.position;
+  joint_data_refresh();
+  // If desired, we can unsubscribe from the topic as well.
+  //listener1.unsubscribe();
+  });
+  
+  var listener2 = new ROSLIB.Topic({
+    ros : ros,
+    name : '/robot_stateRT',
+    messageType : 'ur_msgs/RobotStateRTMsg'
+  });
+
+  // Then we add a callback to be called every time a message is published on this topic.
+  listener2.subscribe(function(message) {
+  console.log('Received message on ' + listener2.name + ': ' + message.tool_vector);
+  robot_pose=message.tool_vector;
+  motor_temp=message.motor_temperatures;
+  tcp_speed=message.tcp_speed;
+  pose_data_refresh();
+  motor_temp_refresh();
+  // If desired, we can unsubscribe from the topic as well.
+  //listener2.unsubscribe();
+  });
+
+  // Getting a param value
+  // ---------------------
+
+  var favoriteColor = new ROSLIB.Param({
+    ros : ros,
+    name : 'favorite_color'
+  });
+
+  favoriteColor.set('red');
+  favoriteColor.get(function(value) {
+  console.log('My robot\'s favorite color is ' + value);
+  });
+</script>
+<script>
+  $('#like').click(function(e){
+    e.preventDefault();
+    $.post('/test');
+  });
+</script>
