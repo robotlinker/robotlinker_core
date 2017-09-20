@@ -5,7 +5,9 @@
   "license": "MIT",
   "bin": "./bin/www",
   "scripts": {
-    "postinstall": "bower install --allow-root",
+    "init1": "sudo chown -R root ~/.cache/bower/",
+    "init2": "sudo chown -R root ~/.config/configstore/",
+    "postinstall": "bower install",
     "test": "nodemon ./bin/www",
     "start": "node ./bin/www"
   },
