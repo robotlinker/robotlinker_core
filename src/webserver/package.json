@@ -5,7 +5,7 @@
   "license": "MIT",
   "bin": "./bin/www",
   "scripts": {
-    "postinstall": "bower install",
+    "postinstall": "bower install --allow-root",
     "test": "nodemon ./bin/www",
     "start": "node ./bin/www"
   },
