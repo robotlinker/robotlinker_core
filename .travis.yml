@@ -1,5 +1,5 @@
 sudo: required
-dist: trusty
+dist: xenial 
 # Force travis to use its minimal image with default Python settings
 language: generic
 compiler:
@@ -8,7 +8,7 @@ env:
   global:
     - CATKIN_WS=~/catkin_ws
     - CATKIN_WS_SRC=${CATKIN_WS}/src
-    - CI_ROS_DISTRO="indigo"
+    - CI_ROS_DISTRO="kinetic"
 #  matrix:
 #    - CI_ROS_DISTRO="indigo"
 #    - CI_ROS_DISTRO="jade"
