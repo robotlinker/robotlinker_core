@@ -1,4 +1,11 @@
 <%layout('../layout')%>
+<script src="http://cdn.robotwebtools.org/threejs/current/three.js"></script>
+<script src="http://cdn.robotwebtools.org/threejs/current/ColladaLoader.js"></script>
+<script src="http://cdn.robotwebtools.org/threejs/current/STLLoader.js"></script>
+<script src="http://cdn.robotwebtools.org/ColladaAnimationCompress/current/ColladaLoader2.js"></script>
+<script src="http://cdn.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+<script src="http://cdn.robotwebtools.org/roslibjs/current/roslib.js"></script>
+<script src="/ros3djs/build/ros3d.js"></script>
 <script src="/roslibjs/build/roslib.js"></script>
 <script>  
   // Connecting to ROS
@@ -38,31 +45,72 @@
 
   // Publishing a Topic
   // ------------------
-
   // First, we create a Topic object with details of the topic's name and message type.
   var cmdVel = new ROSLIB.Topic({
-    ros : ros,
-    name : '/cmd_vel',
-    messageType : 'geometry_msgs/Twist'
+      ros: ros,
+      name: '/cmd_vel',
+      messageType: 'geometry_msgs/Twist'
+  });
+  var linear_val = new ROSLIB.Topic({
+      ros: ros,
+      name: '/ur_driver/URScript',
+      messageType: 'std_msgs/String'
+  });
+  var joint_val = new ROSLIB.Topic({
+      ros: ros,
+      name: '/ur_driver/URScript',
+      messageType: 'std_msgs/String'
   });
 
-  // Then we create the payload to be published. The object we pass in to ros.Message matches the
-  // fields defined in the geometry_msgs/Twist.msg definition.
-  var twist = new ROSLIB.Message({
-    linear : {
-      x : 0.1,
-      y : 0.2,
-      z : 0.3
-    },
-    angular : {
-      x : -0.1,
-      y : -0.2,
-      z : -0.3
-    }
-  });
+        var twist = new ROSLIB.Message({
+            linear: {
+                x: 0.1,
+                y: 0.2,
+                z: 0.3
+            },
+            angular: {
+                x: -0.1,
+                y: -0.2,
+                z: -0.3
+            }
+        });
 
-  // And finally, publish.
-  cmdVel.publish(twist);
+        var temp_Pdata = ["0.0", "0.0", "0.0", "0.0", "0.0", "0.0"];
+        var robot_pose = [0.04343, -0.69536, 0.47229, 0, -3.166, 0]; //Drafted original position values of robot
+        var temp_Sdata = ["0.0", "0.0", "0.0", "0.0", "0.0", "0.0"];
+        var joint_speed = [1.5962, 0, 0, 0, 0, 0]; // Drafted Velocity of robot
+        var robot_tcp_speed = 1.0;
+
+        for (var i = 5; i >= 0; i--) {
+            temp_Pdata[i] = String(robot_pose[i]);
+            temp_Sdata[i] = String(joint_speed[i])
+        }
+        //console.log("data", temp_Pdata); // For checking
+        //console.log("data", temp_Sdata); // For checking
+        var movelinear = new ROSLIB.Message({
+            data: "movel(p[" + temp_Pdata[0] + "," + temp_Pdata[1] + "," + temp_Pdata[2] + "," + temp_Pdata[3] + "," + temp_Pdata[4] + "," + temp_Pdata[5] + "],a=1.3962634015954636, v=" + temp_Sdata[0] + ")"
+        });
+
+        var temp_Jdata = ["0.0", "0.0", "0.0", "0.0", "0.0", "0.0"];
+        var joint_value = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+        for (var e = 5; e >= 0; e--) {
+            temp_Jdata[e] = String(joint_value[e]);
+        }
+        //console.log("data", temp_Jdata);
+        var movejoint = new ROSLIB.Message({
+
+            data: "movej([" + temp_Jdata[0] + "," + temp_Jdata[1] + "," + temp_Jdata[2] + "," + temp_Jdata[3] + "," + temp_Jdata[4] + "," + temp_Jdata[5] + "],a=1.3962634015954636, v=" + temp_Sdata[0] + ")"
+        });
+
+        var Z = temp_Pdata[2] * 1000;
+        var X = temp_Pdata[1] * 1000;
+        var Y = temp_Pdata[0] * 1000;
+        var rx = temp_Pdata[3] * 1;
+        var ry = temp_Pdata[4] * 1;
+        var rz = temp_Pdata[5] * 1;
+        // And finally, publish.
+        cmdVel.publish(twist);
 
   //Subscribing to a Topic
   //----------------------
@@ -259,210 +307,276 @@
                </div>
               </div>
 
-              <div class="row">
-               <div class="col-lg-6">
-               <div class="panel panel-default">
-                <div class="panel-heading">
-                    <b> Drag robot joint </b>
-                     </div>
-                     <br/>
-                     <div class="row">
-                     <div class="col-lg-2">
-                     <b> Base </b>
-                     </div>
-                     <div class="col-lg-1">
-                     <button type="button" class="btn btn-primary btn-xs"> - </button>
-                     </div>
-                     <div class="col-lg-7">
-                     <div class="progress">
-                        <div id='base_joint_value'  class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%">
-                           40% Complete (success)
-                        </div>
-                     </div>
-                     </div>
-                     <div class="col-lg-1">
-                     <button type="button" class="btn btn-primary btn-xs"> + </button>
-                     </div>
-                     </div>
-                      <br/>
-                     <div class="row">
-                     <div class="col-lg-2">
-                     <b> Shoulder </b>
-                     </div>
-                     <div class="col-lg-1">
-                     <button type="button" class="btn btn-primary btn-xs"> - </button>
-                     </div>
-                     <div class="col-lg-7">
-                     <div class="progress">
-                        <div id='shoulder_joint_value'  class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%">
-                           40% Complete (success)
-                        </div>
-                     </div>
-                     </div>
-                     <div class="col-lg-1">
-                     <button type="button" class="btn btn-primary btn-xs"> + </button>
-                     </div>
-                     </div>
-                     <br/>
-                     <div class="row">
-                     <div class="col-lg-2">
-                     <b> Elbow </b>
-                     </div>
-                     <div class="col-lg-1">
-                     <button type="button" class="btn btn-primary btn-xs"> - </button>
-                     </div>
-                     <div class="col-lg-7">
-                     <div class="progress">
-                        <div id='elbow_joint_value'  class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%">
-                           40% Complete (success)
-                        </div>
-                     </div>
-                     </div>
-                     <div class="col-lg-1">
-                     <button type="button" class="btn btn-primary btn-xs"> + </button>
-                     </div>
-                     </div>
-                     <br/>
-                     <div class="row">
-                     <div class="col-lg-2">
-                     <b> Wirst_1 </b>
-                     </div>
-                     <div class="col-lg-1">
-                     <button type="button" class="btn btn-primary btn-xs"> - </button>
-                     </div>
-                     <div class="col-lg-7">
-                     <div class="progress">
-                        <div id='wrist_1_joint_value'  class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%">
-                           40% Complete (success)
-                        </div>
-                     </div>
-                     </div>
-                     <div class="col-lg-1">
-                     <button type="button" class="btn btn-primary btn-xs"> + </button>
-                     </div>
-                     </div>
-                     <br/>
-                     <div class="row">
-                     <div class="col-lg-2">
-                     <b> Wrist_2 </b>
-                     </div>
-                     <div class="col-lg-1">
-                     <button type="button" class="btn btn-primary btn-xs"> - </button>
-                     </div>
-                     <div class="col-lg-7">
-                     <div class="progress">
-                        <div id='wrist_2_joint_value'  class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%">
-                           40% Complete (success)
-                        </div>
-                     </div>
-                     </div>
-                     <div class="col-lg-1">
-                     <button type="button" class="btn btn-primary btn-xs"> + </button>
-                     </div>
-                     </div>
-                     <br/>
-                     <div class="row">
-                     <div class="col-lg-2">
-                     <b> Wrist_3 </b>
-                     </div>
-                     <div class="col-lg-1">
-                     <button type="button" class="btn btn-primary btn-xs"> - </button>
-                     </div>
-                     <div class="col-lg-7">
-                     <div class="progress">
-                        <div id='wrist_3_joint_value'  class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%">
-                           40% Complete (success)
-                        </div>
-                     </div>
-                     </div>
-                     <div class="col-lg-1">
-                     <button type="button" class="btn btn-primary btn-xs"> + </button>
-                     </div>
-                     </div>                                                                                                      
-                 </div>                                                                           
-               </div>
+                                                        <div class="row">
+                                                            <div class="col-lg-6">
+                                                                <div class="panel panel-default">
+                                                                    <div class="panel-heading">
+                                                                        <b> Drag robot joint </b>
+                                                                    </div>
+                                                                    <br/>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-1">
+                                                                            <button style="font-size:11px" onmousedown="BDOWN()" onmouseup="mouseup()"><i class="fa fa-arrow-left"></i></button>
+                                                                        </div>
+                                                                        <div class="col-lg-9">
+                                                                            <div class="progress">
+                                                                                <div id='base_joint_value' class="progress-bar progress-bar-info progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%">
+                                                                                    Base
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-1">
+                                                                            <button style="font-size:11px" onmousedown="BUP()" onmouseup="mouseup()"><i class="fa fa-arrow-right"></i></button>
+                                                                        </div>
+                                                                    </div>
+                                                                    <br/>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-1">
+                                                                            <button style="font-size:11px" onmousedown="SDOWN()" onmouseup="mouseup()"><i class="fa fa-arrow-left"></i></button>
+                                                                        </div>
+                                                                        <div class="col-lg-9">
+                                                                            <div class="progress">
+                                                                                <div id='shoulder_joint_value' class="progress-bar progress-bar-info progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%">
+                                                                                    Shoulder
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-1">
+                                                                            <button style="font-size:11px" onmousedown="SUP()" onmouseup="mouseup()"><i class="fa fa-arrow-right"></i></button>
+                                                                        </div>
+                                                                    </div>
+                                                                    <br/>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-1">
+                                                                            <button style="font-size:11px" onmousedown="EDOWN()" onmouseup="mouseup()"><i class="fa fa-arrow-left"></i></button>
+                                                                        </div>
+                                                                        <div class="col-lg-9">
+                                                                            <div class="progress">
+                                                                                <div id='elbow_joint_value' class="progress-bar progress-bar-info progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%">
+                                                                                    Elbow
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-1">
+                                                                            <button style="font-size:11px" onmousedown="EUP()" onmouseup="mouseup()"><i class="fa fa-arrow-right"></i></button>
+                                                                        </div>
+                                                                    </div>
+                                                                    <br/>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-1">
+                                                                            <button style="font-size:11px" onmousedown="W1DOWN()" onmouseup="mouseup()"><i class="fa fa-arrow-left"></i></button>
+                                                                        </div>
+                                                                        <div class="col-lg-9">
+                                                                            <div class="progress">
+                                                                                <div id='wrist_1_joint_value' class="progress-bar progress-bar-info progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%">
+                                                                                    Wrist_1
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-1">
+                                                                            <button style="font-size:11px" onmousedown="W1UP()" onmouseup="mouseup()"><i class="fa fa-arrow-right"></i></button>
+                                                                        </div>
+                                                                    </div>
+                                                                    <br/>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-1">
+                                                                            <button style="font-size:11px" onmousedown="W2DOWN()" onmouseup="mouseup()"><i class="fa fa-arrow-left"></i></button>
+                                                                        </div>
+                                                                        <div class="col-lg-9">
+                                                                            <div class="progress">
+                                                                                <div id='wrist_2_joint_value' class="progress-bar progress-bar-info progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%">
+                                                                                    Wrist_2
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-1">
+                                                                            <button style="font-size:11px" onmousedown="W2UP()" onmouseup="mouseup()"><i class="fa fa-arrow-right"></i></button>
+                                                                        </div>
+                                                                    </div>
+                                                                    <br/>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-1">
+                                                                            <button style="font-size:11px" onmousedown="W3DOWN()" onmouseup="mouseup()"><i class="fa fa-arrow-left"></i></button>
+                                                                        </div>
+                                                                        <div class="col-lg-9">
+                                                                            <div class="progress">
+                                                                                <div id='wrist_3_joint_value' class="progress-bar progress-bar-info progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%">
+                                                                                    Wrist_3
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-1">
+                                                                            <button style="font-size:11px" onmousedown="W3UP()" onmouseup="mouseup()"><i class="fa fa-arrow-right"></i></button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-6">
+                                                                <div class="panel-heading">
+                                                                    <b> Drag robot TCP </b>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-lg-12">
 
-        <div class="row">
-        <div class="col-lg-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <b> Drag TCP </b>
-                </div>
-                <!-- /.panel-heading -->
-                <div class="panel-body">
-                  <div style="position:absolute; left:100px; top:74.7px; ">
-                    <button style="font-size:23px"><i class="fa fa-arrow-up"></i></button><br><br>
-                  </div>
+                                                                        <div style="position:absolute; left:100px; top:54.7px; ">
+                                                                            <button style="font-size:23px" onmousedown="UP()" onmouseup="mouseup()"><i class="fa fa-arrow-up"></i></button>
+                                                                            <br>
+                                                                            <br>
+                                                                            <br>
+                                                                        </div>
 
-                  <div style="position:absolute; left:64.8px; top:112px; ">
-                    <button style="font-size:23px"><i class="fa fa-arrow-left"></i></button>
-                  </div>
+                                                                        <div style="position:absolute; left:64.8px; top:92px; ">
+                                                                            <button style="font-size:23px" onmousedown="LEFT()" onmouseup="mouseup()"><i class="fa fa-arrow-left"></i></button>
+                                                                            <br>
+                                                                            <br>
+                                                                            <br>
 
-                  <div style="position:absolute; left:136.67px; top:112.5px; ">
-                    <button style="font-size:23px"><i class="fa fa-arrow-right"></i></button><br><br>
-                  </div>
+                                                                        </div>
 
-                  <div style="position:absolute; left:100px; top:149.6px; ">
-                    <button style="font-size:23px"><i class="fa fa-arrow-down"></i></button><br><br>
-                  </div>
+                                                                        <div style="position:absolute; left:136.67px; top:92.5px; ">
+                                                                            <button style="font-size:23px" onmousedown="RIGHT()" onmouseup="mouseup()"><i class="fa fa-arrow-right"></i></button>
+                                                                            <br>
+                                                                            <br>
+                                                                            <br>
 
-                  <div style="position:absolute; left:260px; top:81px; ">
-                    <button style="font-size:30px"><i class="fa fa-arrow-up"></i></button><br><br><br>
-                  </div>
+                                                                        </div>
 
-                  <div style="position:absolute; left:260px; top:130px; ">
-                   <button style="font-size:30px"><i class="fa fa-arrow-down"></i></button><br>
-                  </div>
-                   
-                  <br><br><br><br><br><br><br><br> 
+                                                                        <div style="position:absolute; left:100px; top:129.6px; ">
+                                                                            <button style="font-size:23px" onmousedown="DOWN()" onmouseup="mouseup()"><i class="fa fa-arrow-down"></i></button>
+                                                                            <br>
+                                                                            <br>
+                                                                            <br>
+                                                                        </div>
 
-                  <div style="position:absolute; left:100px; top:(74.7+260)px; ">
-                    <button style="font-size:23px"><i class="fa fa-arrow-up"></i></button><br><br>
-                  </div>
+                                                                        <div style="position:absolute; left:260px; top:61px; ">
+                                                                            <button style="font-size:25px" onmousedown="ZUP()" onmouseup="mouseup()"><i class="fa fa-arrow-up"></i></button>
+                                                                            <br>
+                                                                            <br>
+                                                                            <br>
+                                                                        </div>
 
-                  <div style="position:absolute; left:64.8px; top:260px; ">
-                    <button style="font-size:23px"><i class="fa fa-arrow-left"></i></button>
-                  </div>
+                                                                        <div style="position:absolute; left:260px; top:110px; ">
+                                                                            <button style="font-size:25px" onmousedown="ZDOWN()" onmouseup="mouseup()"><i class="fa fa-arrow-down"></i></button>
+                                                                            <br>
+                                                                            <br>
+                                                                            <br>
+                                                                            <br>
+                                                                            <br>
+                                                                        </div>
 
-                  <div style="position:absolute; left:136.67px; top:260px; ">
-                    <button style="font-size:23px"><i class="fa fa-arrow-right"></i></button><br><br>
-                  </div>
+                                                                        <div style="position:absolute; left:260px; top:194.7px; ">
+                                                                            <button style="font-size:23px" onmousedown="RyUP()" onmouseup="mouseup()"><i class="fa fa-arrow-up"></i></button>
+                                                                            <br>
+                                                                            <br>
+                                                                            <br>
+                                                                        </div>
 
-                  <div style="position:absolute; left:100px; top:300px; ">
-                    <button style="font-size:23px"><i class="fa fa-arrow-down"></i></button><br><br>
-                  </div>
+                                                                        <div style="position:absolute; left:224.8px; top:232px; ">
+                                                                            <button style="font-size:23px" onmousedown="RxLEFT()" onmouseup="mouseup()"><i class="fa fa-arrow-left"></i></button>
+                                                                            <br>
+                                                                            <br>
+                                                                            <br>
 
-                  <div style="position:absolute; left:260px; top:220px; ">
-                    <button style="font-size:30px"><i class="fa fa-arrow-up"></i></button><br><br><br>
-                  </div>
+                                                                        </div>
 
-                  <div style="position:absolute; left:260px; top:270px; ">
-                   <button style="font-size:30px"><i class="fa fa-arrow-down"></i></button><br>
-                  </div>
+                                                                        <div style="position:absolute; left:296.67px; top:232.5px; ">
+                                                                            <button style="font-size:23px" onmousedown="RxRIGHT()" onmouseup="mouseup()"><i class="fa fa-arrow-right"></i></button>
+                                                                            <br>
+                                                                            <br>
+                                                                            <br>
 
-                  <br><br><br><br><br><br><br><br><br>
-                 <!-- /.panel-body -->
-            </div>
+                                                                        </div>
 
- 
-        </div>
-        <!-- /.row -->
-                </div>
-               </div>
-              </div>
-            </div>
-        </div>
-    </div>
-    <!-- /.container-fluid -->
-</div>
-<!-- /#page-wrapper -->
-<script src="http://cdn.robotwebtools.org/threejs/current/three.js"></script>
-<script src="http://cdn.robotwebtools.org/threejs/current/ColladaLoader.js"></script>
-<script src="http://cdn.robotwebtools.org/threejs/current/STLLoader.js"></script>
-<script src="http://cdn.robotwebtools.org/ColladaAnimationCompress/current/ColladaLoader2.js"></script>
-<script src="http://cdn.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
-<script src="http://cdn.robotwebtools.org/roslibjs/current/roslib.js"></script>
-<script src="/ros3djs/build/ros3d.js"></script>
+                                                                        <div style="position:absolute; left:260px; top:269.6px; ">
+                                                                            <button style="font-size:23px" onmousedown="RyDOWN()" onmouseup="mouseup()"><i class="fa fa-arrow-down"></i></button>
+                                                                            <br>
+                                                                            <br>
+                                                                            <br>
+                                                                        </div>
+                                                                        <div style="position:absolute; left:64.8px; top:232px; ">
+                                                                            <button style="font-size:23px" onmousedown="RzLEFT()" onmouseup="mouseup()"><i class="fa fa-arrow-left"></i></button>
+                                                                            <br>
+                                                                            <br>
+                                                                            <br>
+
+                                                                        </div>
+
+                                                                        <div style="position:absolute; left:136.67px; top:232.5px; ">
+                                                                            <button style="font-size:23px" onmousedown="RzRIGHT()" onmouseup="mouseup()"><i class="fa fa-arrow-right"></i></button>
+                                                                            <br>
+                                                                            <br>
+                                                                            <br>
+
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <style>
+                                                                #slidecontainer {
+                                                                    width: 100%;
+                                                                }
+                                                                
+                                                                .slider {
+                                                                    -webkit-appearance: none;
+                                                                    width: 100%;
+                                                                    height: 10px;
+                                                                    border-radius: 5px;
+                                                                    background: #d3d3d3;
+                                                                    outline: none;
+                                                                    opacity: 1;
+                                                                    -webkit-transition: .2s;
+                                                                    transition: opacity .2s;
+                                                                }
+                                                                
+                                                                .slider:hover {
+                                                                    opacity: 1;
+                                                                }
+                                                                
+                                                                .slider::-webkit-slider-thumb {
+                                                                    -webkit-appearance: none;
+                                                                    appearance: none;
+                                                                    width: 20px;
+                                                                    height: 20px;
+                                                                    border-radius: 50%;
+                                                                    background: #4CAF50;
+                                                                    cursor: pointer;
+                                                                }
+                                                                
+                                                                .slider::-moz-range-thumb {
+                                                                    width: 20px;
+                                                                    height: 20px;
+                                                                    border-radius: 50%;
+                                                                    background: #4CAF50;
+                                                                    cursor: pointer;
+                                                                }
+                                                            </style>
+                                                            <div id="slidecontainer">
+                                                                <input type="range" min="0" max="200" value="100" class="slider" id="Range">
+                                                                <p>Velocity: <span id="output"></span></p>
+
+                                                            </div>
+
+                                                            <script>
+                                                                var slider = document.getElementById("Range");
+                                                                var output = document.getElementById("output");
+                                                                output.innerHTML = slider.value * 0.010471975511965976;
+
+                                                                slider.oninput = function() {
+                                                                    robot_tcp_speed = output.innerHTML = this.value * 0.010471975511965976;
+                                                                    //console.log("output", output);
+                                                                    console.log("robot_tcp_speed", robot_tcp_speed);
+                                                                }
+                                                            </script>
+                                                        </div>
+                                                        </div>
+                                                        </div>
+                                                        </div>
+                                                        </div>
+                                                        <!-- /.container-fluid -->
+                                                        </div>
+                                                        <!-- /#page-wrapper -->
+
 <script>
   /**
    * Setup all visualization elements when the page is loaded. 
@@ -475,15 +589,16 @@
     // Create the main viewer.
     var viewer = new ROS3D.Viewer({
       divID : 'urdf',
-      width : 750,
-      height : 780,
-      antialias : true
+      width : 740,
+      height : 820,
+      antialias : true,
+      color:'#e5f2f9'
     });
 
     // Add a grid.
     //viewer.addObject(new ROS3D.Grid());
     viewer.addObject(new ROS3D.Grid({
-      color:'#0181c4',
+      color:'#e5f2f9',
       cellSize: 0.5,
       num_cells: 20
     }));
@@ -508,14 +623,14 @@
     new ROS3D.UrdfClient({
       ros : ros,
       tfClient : tfClient,
-      path : 'http://127.0.0.1:8080/',
+      path : 'http://localhost:8080/universal_robot/',
       frameID : 'base_link', 
       dataType: 'JSONP',
       rootObject : viewer.scene,
       loader :  ROS3D.COLLADA_LOADER_2
     });
-
 </script>
+
 <script type="text/javascript">
   function joint_data_refresh() 
   {
@@ -531,26 +646,12 @@
     document.getElementById("joint_value_5").innerHTML = joint_value_deg[4].toFixed(2);
     joint_value_deg[5] = joint_value[5]*180/3.14;
     document.getElementById("joint_value_6").innerHTML = joint_value_deg[5].toFixed(2);
-    
-    /*document.getElementById("joint_1_value").innerHTML = joint_value_deg[0].toFixed(2);
-    document.getElementById("joint_2_value").innerHTML = joint_value_deg[1].toFixed(2);
-    document.getElementById("joint_3_value").innerHTML = joint_value_deg[2].toFixed(2);
-    document.getElementById("joint_4_value").innerHTML = joint_value_deg[3].toFixed(2);
-    document.getElementById("joint_5_value").innerHTML = joint_value_deg[4].toFixed(2);
-    document.getElementById("joint_6_value").innerHTML = joint_value_deg[5].toFixed(2);*/
      }
 </script>  
 
 <script type="text/javascript">
   function motor_temp_refresh() 
   {
-    /*document.getElementById("motor_base_temp").innerHTML = (motor_temp[0]).toFixed(2);
-    document.getElementById("motor_shoulder_temp").innerHTML = (motor_temp[1]).toFixed(2);
-    document.getElementById("motor_elbow_temp").innerHTML = (motor_temp[2]).toFixed(2);
-    document.getElementById("motor_wrist_1_temp").innerHTML = (motor_temp[3]).toFixed(2);
-    document.getElementById("motor_wrist_2_temp").innerHTML = (motor_temp[4]).toFixed(2);
-    document.getElementById("motor_wrist_3_temp").innerHTML = (motor_temp[5]).toFixed(2);*/
-
     document.getElementById("speed_value_x").innerHTML = (tcp_speed[0]*1000).toFixed(4);
     document.getElementById("speed_value_y").innerHTML = (tcp_speed[1]*1000).toFixed(4);
     document.getElementById("speed_value_z").innerHTML = (tcp_speed[2]*1000).toFixed(4);
@@ -565,8 +666,8 @@
     document.getElementById("joint_5_speed").innerHTML = (joint_speed[4]).toFixed(4);
     document.getElementById("joint_6_speed").innerHTML = (joint_speed[5]).toFixed(4);    
    }
-
 </script>
+
 <script type="text/javascript">
   function pose_data_refresh() 
   {
@@ -579,6 +680,7 @@
     
    }
 </script>
+
 <script>
    var pi=3.14;
     var id_1=document.getElementById('base_joint_value');
@@ -593,19 +695,309 @@
     window.setInterval(function(x){id_5.style.width=''+(((50*joint_value[4])/(2*pi))+50)+'%';},50);
     var id_6=document.getElementById('wrist_3_joint_value');
     window.setInterval(function(x){id_6.style.width=''+(((50*joint_value[5])/(2*pi))+50)+'%';},50);
-    
-   /* var id_7=document.getElementById('pose_x_value');
-    window.setInterval(function(x){id_7.style.width=''+(((50*joint_value[0])/(2*pi))+50)+'%';},50);
-    var id_8=document.getElementById('pose_y_value');
-    window.setInterval(function(x){id_8.style.width=''+(((50*joint_value[1])/(2*pi))+50)+'%';},50);
-    var id_9=document.getElementById('pose_z_value');
-    window.setInterval(function(x){id_9.style.width=''+(((50*joint_value[2])/(2*pi))+50)+'%';},50);
-    var id_10=document.getElementById('pose_rx_value');
-    window.setInterval(function(x){id_10.style.width=''+(((50*joint_value[3])/(2*pi))+50)+'%';},50);
-    var id_11=document.getElementById('pose_ry_value');
-    window.setInterval(function(x){id_11.style.width=''+(((50*joint_value[4])/(2*pi))+50)+'%';},50);
-    var id_12=document.getElementById('pose_rz_value');
-    window.setInterval(function(x){id_12.style.width=''+(((50*joint_value[5])/(2*pi))+50)+'%';},50);*/
-    
-
 </script>
+
+                                                        <script type="text/javascript">
+                                                            function Update_robot_status() {
+                                                                for (var i = 5; i >= 0; i--) {
+                                                                    temp_Pdata[i] = String(robot_pose[i]);
+                                                                    //temp_Sdata[i] = String(joint_speed[i])
+                                                                }
+                                                                //console.log("temp_Pdata=", temp_Pdata);
+                                                                //console.log("temp_Sdata=", temp_Sdata);
+                                                                movelinear.data = "movel(p[" + temp_Pdata[0] + "," + temp_Pdata[1] + "," + temp_Pdata[2] + "," + temp_Pdata[3] + "," + temp_Pdata[4] + "," + temp_Pdata[5] + "],a=1.3962634015954636, v=" + robot_tcp_speed + ")";
+                                                                Update_robot_JointVal();
+
+                                                            }
+
+                                                            function Update_robot_JointVal() {
+                                                                for (var e = 5; e >= 0; e--) {
+                                                                    temp_Jdata[e] = String(joint_value[e]);
+                                                                }
+                                                                //console.log("temp_Jdata=", temp_Jdata);
+                                                                movejoint.data = "movej([" + temp_Jdata[0] + "," + temp_Jdata[1] + "," + temp_Jdata[2] + "," + temp_Jdata[3] + "," + temp_Jdata[4] + "," + temp_Jdata[5] + "],a=1.3962634015954636, v=" + 1 + ")";
+                                                            }
+
+                                                            function RIGHT() {
+                                                                timeout = setInterval(function() {
+                                                                    X += 0.005 * 1000;
+                                                                    robot_pose[1] += 0.005;
+                                                                    document.getElementById("robot_pose_x").innerHTML = X.toFixed(2);
+                                                                    Update_robot_status();
+                                                                    linear_val.publish(movelinear);
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function LEFT() {
+                                                                timeout = setInterval(function() {
+                                                                    X -= 0.005 * 1000;
+                                                                    robot_pose[1] -= 0.005;
+                                                                    document.getElementById("robot_pose_x").innerHTML = X.toFixed(2);
+                                                                    Update_robot_status();
+                                                                    linear_val.publish(movelinear);
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function DOWN() {
+                                                                timeout = setInterval(function() {
+                                                                    Y += 0.005 * 1000;
+                                                                    robot_pose[0] += 0.005;
+                                                                    document.getElementById("robot_pose_y").innerHTML = Y.toFixed(2);
+                                                                    Update_robot_status();
+                                                                    linear_val.publish(movelinear);
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function UP() {
+                                                                timeout = setInterval(function() {
+                                                                    Y -= 0.005 * 1000;
+                                                                    robot_pose[0] -= 0.005;
+                                                                    document.getElementById("robot_pose_y").innerHTML = Y.toFixed(2);
+                                                                    Update_robot_status();
+                                                                    linear_val.publish(movelinear);
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function ZUP() {
+                                                                timeout = setInterval(function() {
+                                                                    Z += 0.005 * 1000;
+                                                                    robot_pose[2] += 0.005;
+                                                                    document.getElementById("robot_pose_z").innerHTML = Z.toFixed(2);
+                                                                    Update_robot_status();
+                                                                    linear_val.publish(movelinear);
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function ZDOWN() {
+                                                                timeout = setInterval(function() {
+                                                                    Z -= 0.005 * 1000;
+                                                                    robot_pose[2] -= 0.005;
+                                                                    document.getElementById("robot_pose_z").innerHTML = Z.toFixed(2);
+                                                                    Update_robot_status();
+                                                                    linear_val.publish(movelinear);
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function BUP() {
+                                                                timeout = setInterval(function() {
+                                                                   // joint_value_deg[0] += 0.03;
+                                                                    joint_value[0] += 0.03;
+                                                                    Update_robot_status();
+                                                                    document.getElementById("joint_value_1").innerHTML = joint_value[0].toFixed(2);
+                                                                    joint_val.publish(movejoint);
+                                                                    joint_data_refresh();
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function BDOWN() {
+                                                                timeout = setInterval(function() {
+                                                                   // joint_value_deg[0] -= 0.03;
+                                                                    joint_value[0] -= 0.03;
+                                                                    Update_robot_status();
+                                                                    document.getElementById("joint_value_1").innerHTML = joint_value[0].toFixed(2);
+                                                                    joint_val.publish(movejoint);
+                                                                    joint_data_refresh();
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function SUP() {
+                                                                timeout = setInterval(function() {
+                                                                    //joint_value_deg[1] += 0.03;
+                                                                    joint_value[1] += 0.03;
+                                                                    Update_robot_status();
+                                                                    document.getElementById("joint_value_2").innerHTML = joint_value[1].toFixed(2);
+                                                                    joint_val.publish(movejoint);
+                                                                    joint_data_refresh();
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function SDOWN() {
+                                                                timeout = setInterval(function() {
+                                                                    //joint_value_deg[1] -= 0.03;
+                                                                    joint_value[1] -= 0.03;
+                                                                    Update_robot_status();
+                                                                    document.getElementById("joint_value_2").innerHTML = joint_value[1].toFixed(2);
+                                                                    joint_val.publish(movejoint);
+                                                                    joint_data_refresh();
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function EUP() {
+                                                                timeout = setInterval(function() {
+                                                                    //joint_value_deg[2] += 0.03;
+                                                                    joint_value[2] += 0.03;
+                                                                    Update_robot_status();
+                                                                    document.getElementById("joint_value_3").innerHTML = joint_value[2].toFixed(2);
+                                                                    joint_val.publish(movejoint);
+                                                                    joint_data_refresh();
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function EDOWN() {
+                                                                timeout = setInterval(function() {
+                                                                    //joint_value_deg[2] -= 0.03;
+                                                                    joint_value[2] -= 0.03;
+                                                                    Update_robot_status();
+                                                                    document.getElementById("joint_value_3").innerHTML = joint_value[2].toFixed(2);
+                                                                    joint_val.publish(movejoint);
+                                                                    joint_data_refresh();
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function W1UP() {
+                                                                timeout = setInterval(function() {
+                                                                    //joint_value_deg[3] += 0.03;
+                                                                    joint_value[3] += 0.03;
+                                                                    Update_robot_status();
+                                                                    document.getElementById("joint_value_4").innerHTML = joint_value[3].toFixed(2);
+                                                                    joint_val.publish(movejoint);
+                                                                    joint_data_refresh();
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function W1DOWN() {
+                                                                timeout = setInterval(function() {
+                                                                    //joint_value_deg[3] -= 0.03;
+                                                                    joint_value[3] -= 0.03;
+                                                                    Update_robot_status();
+                                                                    document.getElementById("joint_value_4").innerHTML = joint_value[3].toFixed(2);
+                                                                    joint_val.publish(movejoint);
+                                                                    joint_data_refresh();
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function W2UP() {
+                                                                timeout = setInterval(function() {
+                                                                    //joint_value_deg[4] += 0.03;
+                                                                    joint_value[4] += 0.03;
+                                                                    Update_robot_status();
+                                                                    document.getElementById("joint_value_5").innerHTML = joint_value[4].toFixed(2);
+                                                                    joint_val.publish(movejoint);
+                                                                    joint_data_refresh();
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function W2DOWN() {
+                                                                timeout = setInterval(function() {
+                                                                    //joint_value_deg[4] -= 0.03;
+                                                                    joint_value[4] -= 0.03;
+                                                                    Update_robot_status();
+                                                                    document.getElementById("joint_value_5").innerHTML = joint_value[4].toFixed(2);
+                                                                    joint_val.publish(movejoint);
+                                                                    joint_data_refresh();
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function W3UP() {
+                                                                timeout = setInterval(function() {
+                                                                    //joint_value_deg[5] += 0.03;
+                                                                    joint_value[5] += 0.03;
+                                                                    Update_robot_status();
+                                                                    document.getElementById("joint_value_6").innerHTML = joint_value[5].toFixed(2);
+                                                                    joint_val.publish(movejoint);
+                                                                    joint_data_refresh();
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function W3DOWN() {
+                                                                timeout = setInterval(function() {
+                                                                   // joint_value_deg[5] -= 0.03;
+                                                                    joint_value[5] -= 0.03;
+                                                                    Update_robot_status();
+                                                                    document.getElementById("joint_value_6").innerHTML = joint_value[5].toFixed(2);
+                                                                    joint_val.publish(movejoint);
+                                                                    joint_data_refresh();
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function RxRIGHT() {
+                                                                timeout = setInterval(function() {
+                                                                    rx += 0.05;
+                                                                    robot_pose[3] += 0.05;
+                                                                    Update_robot_status();
+                                                                    linear_val.publish(movelinear);
+                                                                    document.getElementById("robot_pose_rx").innerHTML = rx.toFixed(4)
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function RxLEFT() {
+                                                                timeout = setInterval(function() {
+                                                                    rx -= 0.05;
+                                                                    robot_pose[3] -= 0.05;
+                                                                    Update_robot_status();
+                                                                    linear_val.publish(movelinear);
+                                                                    document.getElementById("robot_pose_rx").innerHTML = rx.toFixed(4)
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function RyDOWN() {
+                                                                timeout = setInterval(function() {
+                                                                    ry += 0.05;
+                                                                    robot_pose[4] += 0.05;
+                                                                    Update_robot_status();
+                                                                    linear_val.publish(movelinear);
+                                                                    document.getElementById("robot_pose_ry").innerHTML = ry.toFixed(4)
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function RyUP() {
+                                                                timeout = setInterval(function() {
+                                                                    ry -= 0.05;
+                                                                    robot_pose[4] -= 0.05;
+                                                                    Update_robot_status();
+                                                                    linear_val.publish(movelinear);
+                                                                    document.getElementById("robot_pose_ry").innerHTML = ry.toFixed(4)
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function RzRIGHT() {
+                                                                timeout = setInterval(function() {
+                                                                    rz += 0.05;
+                                                                    robot_pose[5] += 0.05;
+                                                                    Update_robot_status();
+                                                                    linear_val.publish(movelinear);
+                                                                    document.getElementById("robot_pose_rz").innerHTML = rz.toFixed(4)
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function RzLEFT() {
+                                                                timeout = setInterval(function() {
+                                                                    rz -= 0.05;
+                                                                    robot_pose[5] -= 0.05;
+                                                                    Update_robot_status();
+                                                                    linear_val.publish(movelinear);
+                                                                    document.getElementById("robot_pose_rz").innerHTML = rz.toFixed(4)
+                                                                }, 50);
+                                                                return false;
+                                                            }
+
+                                                            function mouseup() {
+                                                                clearInterval(timeout);
+                                                                return false;
+                                                            };
+                                                        </script>
+                                                        <script>
+                                                        </script>
