@@ -5,6 +5,8 @@
   "license": "MIT",
   "bin": "./bin/www",
   "scripts": {
+    "initilization": "sudo chmod g+rw ~/.config/configstore/bower-github.json",
+    "postinstall": "bower install --allow-root ",
     "test": "nodemon ./bin/www",
     "start": "node ./bin/www"
   },
